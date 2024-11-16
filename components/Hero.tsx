@@ -4,7 +4,7 @@ export const Hero = () => {
       <figure class="overflow-hidden mb-4">
         <img
           src="sl.png"
-          alt=""
+          alt="my pixel-art avatar"
           class="w-24 h-24 object-cover border border-gray-300 rounded-full mx-auto"
         />
       </figure>
@@ -12,7 +12,7 @@ export const Hero = () => {
         sl-utils
       </h1>
       <p class="text-lg md:text-xl text-gray-600">
-        A small collection of utilities for myself 🤓
+        🛠️ A small collection of utilities for myself 🤓
       </p>
     </>
   );

@@ -13,6 +13,11 @@ const data = [
     methods: "GET",
     description: "Create a QR code for a given URL",
   },
+  {
+    endpoint: "/api/mit-license",
+    methods: "GET",
+    description: "Precompiled MIT License text",
+  },
 ];
 
 export default function Home() {

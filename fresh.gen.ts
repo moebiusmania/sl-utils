@@ -4,6 +4,7 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_mit_license from "./routes/api/mit-license.ts";
 import * as $api_password from "./routes/api/password.ts";
 import * as $api_qr_code from "./routes/api/qr-code.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
@@ -15,6 +16,7 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api/mit-license.ts": $api_mit_license,
     "./routes/api/password.ts": $api_password,
     "./routes/api/qr-code.ts": $api_qr_code,
     "./routes/greet/[name].tsx": $greet_name_,
