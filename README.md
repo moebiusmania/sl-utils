@@ -1,16 +1,43 @@
-# Fresh project
+# sl-utils
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+> A small collection of utilities for myself 🤓
 
-### Usage
+https://sl-utils.deno.dev/
 
-Make sure to install Deno: https://deno.land/manual/getting_started/installation
+Some simple and small APIs to make my life easier.
 
-Then start the project:
+## Tech stack
+
+Built on top of:
+
+- [Deno](https://deno.land/) - Typescript native runtime
+- [Fresh](https://fresh.deno.dev/) - 1st party Web framework
+
+and some modules:
+
+- [qrcode](https://jsr.io/@libs/qrcode)
+
+published on [Deno Deploy](https://deno.com/deploy) free tier.
+
+## How to use
+
+Make sure to install Deno on your machine: https://deno.land/manual/getting_started/installation
+
+Then, clone the repository:
 
 ```
-deno task start
+$ git clone https://github.com/salvatorelaisa/sl-utils.git
+$ cd sl-utils
+```
+
+Start the project:
+
+```
+$ deno task start
 ```
 
 This will watch the project directory and restart as necessary.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
