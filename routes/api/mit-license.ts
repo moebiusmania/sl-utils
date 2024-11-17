@@ -1,4 +1,4 @@
-export const handler = (_req: Request): Response => {
+export const handler = (): Response => {
   const year = new Date().getFullYear();
   return new Response(
     `MIT License

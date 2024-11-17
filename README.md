@@ -1,6 +1,6 @@
 # sl-utils
 
-> 🛠️ A small collection of utilities for myself 🤓
+> 🛠️ A collection of small utilities for myself 🤓
 
 https://sl-utils.deno.dev/
 

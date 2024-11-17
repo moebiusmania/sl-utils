@@ -44,6 +44,7 @@ export const handler = (_req: Request): Response => {
   const { searchParams } = new URL(_req.url);
   const options = Object.fromEntries(searchParams.entries());
   const password = generatePassword(options);
-  const body = { password };
-  return new Response(JSON.stringify(body));
+  return new Response(password, {
+    headers: { "Content-Type": "text/plain" },
+  });
 };
