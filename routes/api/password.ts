@@ -26,6 +26,8 @@ export const generatePassword = (_options?: Options): string => {
 
   const options = { ...defaults, ..._options };
 
+  console.log(options, _options);
+
   const charset = Object.keys(options)
     .sort()
     .filter((key) => options[key as Charset])
@@ -42,8 +44,14 @@ export const generatePassword = (_options?: Options): string => {
 
 export const handler = (_req: Request): Response => {
   const { searchParams } = new URL(_req.url);
-  const options = Object.fromEntries(searchParams.entries());
-  const password = generatePassword(options);
+
+  const length = parseInt(searchParams.get("length") || "12");
+  const numbers = searchParams.get("numbers") === "false" ? false : true;
+  const symbols = searchParams.get("symbols") === "false" ? false : true;
+  const lowercase = searchParams.get("lowercase") === "false" ? false : true;
+  const uppercase = searchParams.get("uppercase") === "false" ? false : true;
+
+  const password = generatePassword({ length, numbers, symbols, lowercase, uppercase });
   return new Response(password, {
     headers: { "Content-Type": "text/plain" },
   });
