@@ -26,8 +26,6 @@ export const generatePassword = (_options?: Options): string => {
 
   const options = { ...defaults, ..._options };
 
-  console.log(options, _options);
-
   const charset = Object.keys(options)
     .sort()
     .filter((key) => options[key as Charset])
