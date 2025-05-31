@@ -22,33 +22,33 @@ const data = [
 
 export default function Home() {
   return (
-    <main class="min-h-screen flex items-center justify-center p-4 dark:bg-black dark:text-white">
-      <div class="max-w-2xl w-full mx-auto text-center">
+    <main class="index-main">
+      <div class="index-container">
         <Hero isDark={false} />
-        <hr class="my-6 border-none" />
-        <table class="w-full text-center border-collapse border-spacing-0 border-gray-200">
+        <hr class="index-divider" />
+        <table class="index-table">
           <thead>
             <tr>
-              <th class="border-b border-gray-200">Endpoint</th>
-              <th class="border-b border-gray-200">Methods</th>
-              <th class="border-b border-gray-200">Description</th>
+              <th class="index-table-header">Endpoint</th>
+              <th class="index-table-header">Methods</th>
+              <th class="index-table-header">Description</th>
             </tr>
           </thead>
           <tbody>
             {data.map((item) => (
               <tr>
-                <td class="py-1">
+                <td class="index-table-cell">
                   <Code>
                     <a href={item.endpoint}>{item.endpoint}</a>
                   </Code>
                 </td>
-                <td class="py-1">{item.methods}</td>
-                <td class="py-1">{item.description}</td>
+                <td class="index-table-cell">{item.methods}</td>
+                <td class="index-table-cell">{item.description}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <hr class="my-6 border-none" />
+        <hr class="index-divider" />
         <Footer />
       </div>
     </main>

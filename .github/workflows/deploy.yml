@@ -32,5 +32,3 @@ jobs:
           project: "sl-utils"
           entrypoint: "main.ts"
           root: "."
-          
-          

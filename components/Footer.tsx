@@ -1,17 +1,17 @@
 export const Footer = () => {
   return (
     <footer>
-      <p class="text-xs text-gray-600 dark:text-gray-400">
+      <p class="footer-text">
         Made with ❤️ by{" "}
         <a
-          class="underline text-blue-500"
+          class="footer-link"
           href="https://github.com/moebiusmania"
         >
           Salvatore Laisa
         </a>{" "}
-        <span class="text-gray-600">·</span>{" "}
+        <span class="footer-separator">·</span>{" "}
         <a
-          class="underline text-blue-500"
+          class="footer-link"
           href="https://github.com/moebiusmania/sl-utils"
         >
           Source Code

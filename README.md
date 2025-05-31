@@ -21,7 +21,8 @@ published on [Deno Deploy](https://deno.com/deploy) free tier.
 
 ## How to use
 
-Make sure to install Deno on your machine: https://deno.land/manual/getting_started/installation
+Make sure to install Deno on your machine:
+https://deno.land/manual/getting_started/installation
 
 Then, clone the repository:
 
@@ -40,4 +41,5 @@ This will watch the project directory and restart as necessary.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file
+for details.
