@@ -4,7 +4,7 @@
 
 https://sl-utils.deno.dev/
 
-Some simple and small APIs to make my life easier.
+Some simple and small APIs (_with some companion UIs_) to make my life easier.
 
 ## Tech stack
 
