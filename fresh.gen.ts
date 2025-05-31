@@ -9,7 +9,10 @@ import * as $api_password from "./routes/api/password.ts";
 import * as $api_qr_code from "./routes/api/qr-code.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
-
+import * as $password from "./routes/password.tsx";
+import * as $qr_code from "./routes/qr-code.tsx";
+import * as $PasswordGenerator from "./islands/PasswordGenerator.tsx";
+import * as $QRCodeGenerator from "./islands/QRCodeGenerator.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -21,8 +24,13 @@ const manifest = {
     "./routes/api/qr-code.ts": $api_qr_code,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
+    "./routes/password.tsx": $password,
+    "./routes/qr-code.tsx": $qr_code,
   },
-  islands: {},
+  islands: {
+    "./islands/PasswordGenerator.tsx": $PasswordGenerator,
+    "./islands/QRCodeGenerator.tsx": $QRCodeGenerator,
+  },
   baseUrl: import.meta.url,
 } satisfies Manifest;
 
