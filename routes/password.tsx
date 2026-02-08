@@ -1,7 +1,8 @@
-import { Head } from "$fresh/runtime.ts";
+import { Head } from "fresh/runtime";
+import { define } from "../utils.ts";
 import PasswordGenerator from "../islands/PasswordGenerator.tsx";
 
-export default function PasswordPage() {
+export default define.page(function PasswordPage() {
   return (
     <>
       <Head>
@@ -17,4 +18,4 @@ export default function PasswordPage() {
       </main>
     </>
   );
-}
+});

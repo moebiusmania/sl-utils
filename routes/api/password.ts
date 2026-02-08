@@ -1,3 +1,5 @@
+import { define } from "../../utils.ts";
+
 interface Options {
   length?: number;
   numbers?: boolean;
@@ -40,17 +42,24 @@ export const generatePassword = (_options?: Options): string => {
   return pswd;
 };
 
-export const handler = (_req: Request): Response => {
-  const { searchParams } = new URL(_req.url);
+export const handler = define.handlers({
+  GET(ctx) {
+    const { searchParams } = new URL(ctx.req.url);
+    const length = parseInt(searchParams.get("length") || "12");
+    const numbers = searchParams.get("numbers") === "false" ? false : true;
+    const symbols = searchParams.get("symbols") === "false" ? false : true;
+    const lowercase = searchParams.get("lowercase") === "false" ? false : true;
+    const uppercase = searchParams.get("uppercase") === "false" ? false : true;
 
-  const length = parseInt(searchParams.get("length") || "12");
-  const numbers = searchParams.get("numbers") === "false" ? false : true;
-  const symbols = searchParams.get("symbols") === "false" ? false : true;
-  const lowercase = searchParams.get("lowercase") === "false" ? false : true;
-  const uppercase = searchParams.get("uppercase") === "false" ? false : true;
-
-  const password = generatePassword({ length, numbers, symbols, lowercase, uppercase });
-  return new Response(password, {
-    headers: { "Content-Type": "text/plain" },
-  });
-};
+    const password = generatePassword({
+      length,
+      numbers,
+      symbols,
+      lowercase,
+      uppercase,
+    });
+    return new Response(password, {
+      headers: { "Content-Type": "text/plain" },
+    });
+  },
+});

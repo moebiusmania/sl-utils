@@ -1,7 +1,8 @@
-import { Head } from "$fresh/runtime.ts";
+import { Head } from "fresh/runtime";
+import { define } from "../utils.ts";
 import QRCodeGenerator from "../islands/QRCodeGenerator.tsx";
 
-export default function QRCodePage() {
+export default define.page(function QRCodePage() {
   return (
     <>
       <Head>
@@ -17,4 +18,4 @@ export default function QRCodePage() {
       </main>
     </>
   );
-}
+});

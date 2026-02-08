@@ -11,7 +11,7 @@ Some simple and small APIs (_with some companion UIs_) to make my life easier.
 Built on top of:
 
 - [Deno](https://deno.land/) - Typescript native runtime
-- [Fresh](https://fresh.deno.dev/) - 1st party Web framework
+- [Fresh](https://fresh.deno.dev/) v2 - 1st party Web framework (Vite-based)
 
 and some modules:
 
@@ -31,13 +31,19 @@ $ git clone https://github.com/salvatorelaisa/sl-utils.git
 $ cd sl-utils
 ```
 
-Start the project:
+Install dependencies and start the project:
 
 ```
+$ deno install
+$ deno task dev
+```
+
+For production build and run:
+
+```
+$ deno task build
 $ deno task start
 ```
-
-This will watch the project directory and restart as necessary.
 
 ## License
 

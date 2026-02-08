@@ -1,7 +1,10 @@
-export const handler = (): Response => {
-  const year = new Date().getFullYear();
-  return new Response(
-    `MIT License
+import { define } from "../../utils.ts";
+
+export const handler = define.handlers({
+  GET() {
+    const year = new Date().getFullYear();
+    return new Response(
+      `MIT License
 
 Copyright (c) ${year} Salvatore Laisa
 
@@ -22,6 +25,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.`,
-    { status: 200, headers: { "Content-Type": "text/plain" } },
-  );
-};
+      { status: 200, headers: { "Content-Type": "text/plain" } },
+    );
+  },
+});

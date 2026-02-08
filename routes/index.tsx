@@ -1,6 +1,7 @@
 import { Code } from "../components/Code.tsx";
 import { Footer } from "../components/Footer.tsx";
 import { Hero } from "../components/Hero.tsx";
+import { define } from "../utils.ts";
 
 const data = [
   {
@@ -20,7 +21,7 @@ const data = [
   },
 ];
 
-export default function Home() {
+export default define.page(function Home() {
   return (
     <main class="index-main">
       <div class="index-container">
@@ -53,4 +54,4 @@ export default function Home() {
       </div>
     </main>
   );
-}
+});

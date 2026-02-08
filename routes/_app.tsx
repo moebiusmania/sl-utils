@@ -1,6 +1,7 @@
-import { type PageProps } from "$fresh/server.ts";
-export default function App({ Component, url }: PageProps) {
-  const isDark = new URL(url.href).searchParams.has("dark");
+import { define } from "../utils.ts";
+
+export default define.page(function App({ Component, url }) {
+  const isDark = url ? new URL(url.href).searchParams.has("dark") : false;
 
   return (
     <html class={isDark ? "dark" : ""}>
@@ -13,7 +14,6 @@ export default function App({ Component, url }: PageProps) {
           content="A collection of small utilities for myself 🤓"
         />
         <meta name="author" content="Salvatore Laisa" />
-        <link rel="stylesheet" href="/styles.css" />
         <link rel="icon" href="/sl.png" />
       </head>
       <body>
@@ -21,4 +21,4 @@ export default function App({ Component, url }: PageProps) {
       </body>
     </html>
   );
-}
+});

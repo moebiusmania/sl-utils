@@ -4,7 +4,7 @@ export const Hero = ({ isDark }: { isDark: boolean }) => {
       <figure class="hero-figure">
         <a href={isDark ? "/" : "/?dark"}>
           <img
-            src="sl.png"
+            src="/sl.png"
             alt="my pixel-art avatar"
             class="hero-avatar"
           />
