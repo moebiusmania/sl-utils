@@ -4,7 +4,7 @@ export default define.page(function App({ Component, url }) {
   const isDark = url ? new URL(url.href).searchParams.has("dark") : false;
 
   return (
-    <html class={isDark ? "dark" : ""}>
+    <html class={isDark ? "dark" : ""} lang="en">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
