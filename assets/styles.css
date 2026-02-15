@@ -130,6 +130,11 @@ button, [role="button"] {
   cursor: pointer;
 }
 
+a,
+a:visited {
+  color: var(--color-blue-600);
+}
+
 /* Utility Classes */
 .min-h-screen {
   min-height: 100vh;
@@ -1024,5 +1029,310 @@ html.dark .url-display {
   .qr-code svg {
     width: 300px;
     height: 300px;
+  }
+}
+
+/* Timer Page */
+.timer-main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  background-color: var(--color-gray-50);
+}
+
+html.dark .timer-main {
+  background-color: var(--color-gray-900);
+  color: var(--color-white);
+}
+
+.timer-container {
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-8);
+  width: 100%;
+  max-width: var(--max-width-md);
+}
+
+html.dark .timer-container {
+  background-color: var(--color-gray-800);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
+}
+
+.timer-header {
+  text-align: center;
+  margin-bottom: var(--spacing-8);
+}
+
+.timer-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-2);
+  color: var(--color-gray-900);
+}
+
+html.dark .timer-title {
+  color: var(--color-gray-50);
+}
+
+.timer-subtitle {
+  color: var(--color-gray-600);
+  font-size: var(--text-sm);
+}
+
+html.dark .timer-subtitle {
+  color: var(--color-gray-500);
+}
+
+.timer-display-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: var(--spacing-8) 0;
+  padding: var(--spacing-8);
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-gray-200);
+}
+
+html.dark .timer-display-wrapper {
+  background-color: var(--color-gray-700);
+  border-color: var(--color-gray-600);
+}
+
+.timer-display-wrapper--flash {
+  animation: timer-flash 2s ease-out;
+}
+
+@keyframes timer-flash {
+  0%,
+  100% {
+    background-color: var(--color-gray-50);
+    box-shadow: none;
+  }
+  15%,
+  45%,
+  75% {
+    background-color: var(--color-blue-500);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+  }
+  30%,
+  60%,
+  90% {
+    background-color: var(--color-gray-50);
+    box-shadow: none;
+  }
+}
+
+html.dark .timer-display-wrapper--flash {
+  animation-name: timer-flash-dark;
+}
+
+@keyframes timer-flash-dark {
+  0%,
+  100% {
+    background-color: var(--color-gray-700);
+    box-shadow: none;
+  }
+  15%,
+  45%,
+  75% {
+    background-color: var(--color-blue-500);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
+  }
+  30%,
+  60%,
+  90% {
+    background-color: var(--color-gray-700);
+    box-shadow: none;
+  }
+}
+
+.timer-display {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 4rem;
+  line-height: 1;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  letter-spacing: 0.02em;
+}
+
+html.dark .timer-display {
+  color: var(--color-gray-50);
+}
+
+.timer-value {
+  display: inline-block;
+  min-width: 1.2em;
+  text-align: center;
+}
+
+.timer-separator {
+  opacity: 0.7;
+  margin: 0 0.05em;
+}
+
+.timer-display-label {
+  margin-top: var(--spacing-2);
+  font-size: var(--text-xs);
+  color: var(--color-gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+html.dark .timer-display-label {
+  color: var(--color-gray-500);
+}
+
+.timer-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-6);
+}
+
+.timer-inputs {
+  display: flex;
+  gap: var(--spacing-6);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.timer-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  align-items: center;
+}
+
+.timer-input-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
+  font-size: var(--text-sm);
+}
+
+html.dark .timer-input-label {
+  color: var(--color-gray-200);
+}
+
+.timer-input {
+  width: 5rem;
+  text-align: center;
+  font-size: var(--text-xl);
+  font-family: var(--font-family-mono);
+  padding: var(--spacing-3);
+}
+
+.timer-buttons {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.timer-btn {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3) var(--spacing-6);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-normal),
+    border-color var(--transition-normal);
+  font-size: var(--text-base);
+}
+
+.timer-btn-primary {
+  background-color: var(--color-blue-500);
+  color: var(--color-white);
+}
+
+.timer-btn-primary:hover:not(:disabled) {
+  background-color: var(--color-blue-600);
+}
+
+.timer-btn-primary:disabled {
+  background-color: var(--color-gray-500);
+  cursor: not-allowed;
+}
+
+html.dark .timer-btn-primary:disabled {
+  background-color: var(--color-gray-600);
+}
+
+.timer-btn-secondary {
+  background-color: var(--color-gray-100);
+  border: 1px solid var(--color-gray-300);
+  color: var(--color-gray-700);
+}
+
+.timer-btn-secondary:hover {
+  background-color: var(--color-gray-200);
+}
+
+html.dark .timer-btn-secondary {
+  background-color: var(--color-gray-700);
+  border-color: var(--color-gray-600);
+  color: var(--color-gray-200);
+}
+
+html.dark .timer-btn-secondary:hover {
+  background-color: var(--color-gray-600);
+}
+
+.timer-btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--color-gray-300);
+  color: var(--color-gray-700);
+}
+
+.timer-btn-outline:hover {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-400);
+}
+
+html.dark .timer-btn-outline {
+  border-color: var(--color-gray-600);
+  color: var(--color-gray-200);
+}
+
+html.dark .timer-btn-outline:hover {
+  background-color: var(--color-gray-700);
+  border-color: var(--color-gray-500);
+}
+
+.timer-footer {
+  margin-top: var(--spacing-8);
+  text-align: center;
+}
+
+.timer-footer-sep {
+  color: var(--color-gray-500);
+}
+
+html.dark .timer-footer-sep {
+  color: var(--color-gray-400);
+}
+
+@media (min-width: 768px) {
+  .timer-container {
+    max-width: var(--max-width-lg);
+    padding: var(--spacing-10);
+  }
+
+  .timer-title {
+    font-size: var(--text-4xl);
+  }
+
+  .timer-subtitle {
+    font-size: var(--text-base);
+  }
+
+  .timer-display {
+    font-size: 5.5rem;
   }
 }

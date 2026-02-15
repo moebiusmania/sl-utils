@@ -32,6 +32,11 @@ const pages = [
     title: "QR Code Generator",
     description: "Generate QR codes for a given URL",
   },
+  {
+    path: "/timer",
+    title: "Countdown Timer",
+    description: "A simple countdown timer with minutes and seconds",
+  },
 ];
 
 export default define.page(function Home() {

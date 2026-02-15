@@ -2,7 +2,7 @@
 
 > 🛠️ A collection of small utilities for myself 🤓
 
-https://sl-utils.deno.dev/
+https://sl-utils.moebiusmania.deno.net/
 
 Some simple and small APIs (_with some companion UIs_) to make my life easier.
 
