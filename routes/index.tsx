@@ -37,6 +37,11 @@ const pages = [
     title: "Countdown Timer",
     description: "A simple countdown timer with minutes and seconds",
   },
+  {
+    path: "/notes",
+    title: "Simple notepad",
+    description: "Full-page editable notes saved in your browser",
+  },
 ];
 
 export default define.page(function Home() {

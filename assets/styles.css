@@ -1336,3 +1336,74 @@ html.dark .timer-footer-sep {
     font-size: 5.5rem;
   }
 }
+
+/* Notes page */
+.notes-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-gray-50);
+}
+
+html.dark .notes-main {
+  background-color: var(--color-gray-900);
+}
+
+.notes-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: var(--spacing-4);
+  padding-bottom: var(--spacing-2);
+}
+
+.notes-textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 200px;
+  padding: var(--spacing-4);
+  font-family: var(--font-family-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-white);
+  color: var(--color-gray-900);
+  resize: none;
+}
+
+.notes-textarea::placeholder {
+  color: var(--color-gray-400);
+}
+
+.notes-textarea:focus {
+  outline: none;
+  border-color: var(--color-blue-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+html.dark .notes-textarea {
+  background-color: var(--color-gray-800);
+  color: var(--color-gray-50);
+  border-color: var(--color-gray-600);
+}
+
+html.dark .notes-textarea::placeholder {
+  color: var(--color-gray-500);
+}
+
+.notes-footer {
+  flex-shrink: 0;
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-2);
+  text-align: center;
+}
+
+.notes-footer-sep {
+  color: var(--color-gray-500);
+}
+
+html.dark .notes-footer-sep {
+  color: var(--color-gray-400);
+}
