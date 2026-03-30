@@ -42,6 +42,11 @@ const pages = [
     title: "Simple notepad",
     description: "Full-page editable notes saved in your browser",
   },
+  {
+    path: "/aes-256",
+    title: "AES-256 Encrypt/Decrypt",
+    description: "Encrypt/decrypt text with AES-256 in your browser",
+  },
 ];
 
 export default define.page(function Home() {
