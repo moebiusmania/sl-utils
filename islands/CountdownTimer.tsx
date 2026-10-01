@@ -24,7 +24,9 @@ function getStoredTimer(): { minutes: number; seconds: number } {
     ) {
       return { minutes: m, seconds: s };
     }
-  } catch (_) {}
+  } catch (_) {
+    // Storage unavailable or invalid data: fall back to the default
+  }
   return { minutes: 5, seconds: 0 };
 }
 
@@ -34,7 +36,9 @@ function saveTimer(minutes: number, seconds: number) {
       TIMER_STORAGE_KEY,
       JSON.stringify({ minutes, seconds }),
     );
-  } catch (_) {}
+  } catch (_) {
+    // Storage unavailable: the timer just won't be remembered
+  }
 }
 
 function playAlarm() {
@@ -50,7 +54,9 @@ function playAlarm() {
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.3);
-  } catch (_) {}
+  } catch (_) {
+    // Audio unavailable: skip the alarm sound
+  }
 }
 
 export default function CountdownTimer() {
@@ -64,7 +70,7 @@ export default function CountdownTimer() {
   const wasRunningRef = useRef(false);
 
   useEffect(() => {
-    setIsDark(new URL(window.location.href).searchParams.has("dark"));
+    setIsDark(new URL(location.href).searchParams.has("dark"));
   }, []);
 
   const totalConfigured = minutes * 60 + seconds;
@@ -73,7 +79,7 @@ export default function CountdownTimer() {
   useEffect(() => {
     if (!isRunning) return;
 
-    intervalRef.current = window.setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setRemainingSeconds((prev) => {
         if (prev === null || prev <= 1) {
           if (intervalRef.current !== null) {

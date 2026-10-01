@@ -113,10 +113,14 @@ export default function QRCodeGenerator() {
         <div class="qr-result">
           <label class="result-label">Generated QR Code:</label>
           <div class="qr-display">
-            <div
-              class="qr-code"
-              dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
-            />
+            <div class="qr-code">
+              <img
+                src={`data:image/svg+xml;charset=utf-8,${
+                  encodeURIComponent(qrCodeSvg)
+                }`}
+                alt="Generated QR code"
+              />
+            </div>
             <div class="qr-actions">
               <button
                 type="button"
