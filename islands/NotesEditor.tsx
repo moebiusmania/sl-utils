@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "preact/hooks";
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 
 const STORAGE_KEY = "sl-utils-notes";
 
@@ -22,7 +22,7 @@ function getStoredDocuments(): Document[] {
         "title" in d &&
         "content" in d &&
         typeof (d as Document).title === "string" &&
-        typeof (d as Document).content === "string"
+        typeof (d as Document).content === "string",
     );
   } catch (_) {
     return [];
@@ -43,7 +43,9 @@ export default function NotesEditor() {
   const [panelOpen, setPanelOpen] = useState(true);
   const [isDark, setIsDark] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(null);
+  const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     if (editingTitleIndex !== null) {
@@ -61,7 +63,9 @@ export default function NotesEditor() {
 
   useEffect(() => {
     if (documents.length === 0) setActiveIndex(-1);
-    else if (activeIndex >= documents.length) setActiveIndex(documents.length - 1);
+    else if (activeIndex >= documents.length) {
+      setActiveIndex(documents.length - 1);
+    }
   }, [documents.length, activeIndex]);
 
   const saveDocs = useCallback((next: Document[]) => {
@@ -85,7 +89,7 @@ export default function NotesEditor() {
       else if (activeIndex > index) setActiveIndex(activeIndex - 1);
       setEditingTitleIndex(null);
     },
-    [documents, activeIndex, saveDocs]
+    [documents, activeIndex, saveDocs],
   );
 
   const selectDoc = useCallback((index: number) => {
@@ -101,7 +105,7 @@ export default function NotesEditor() {
       saveDocs(next);
       setEditingTitleIndex(null);
     },
-    [documents, saveDocs]
+    [documents, saveDocs],
   );
 
   const handleContentInput = useCallback(
@@ -113,16 +117,22 @@ export default function NotesEditor() {
       );
       saveDocs(next);
     },
-    [documents, activeIndex, saveDocs]
+    [documents, activeIndex, saveDocs],
   );
 
-  const currentContent = activeIndex >= 0 ? documents[activeIndex]?.content ?? "" : "";
+  const currentContent = activeIndex >= 0
+    ? documents[activeIndex]?.content ?? ""
+    : "";
   const notesPath = "/notes";
   const notesPathDark = "/notes?dark";
 
   return (
     <div class="notes-layout">
-      <aside class={`notes-sidebar ${panelOpen ? "notes-sidebar--open" : "notes-sidebar--collapsed"}`}>
+      <aside
+        class={`notes-sidebar ${
+          panelOpen ? "notes-sidebar--open" : "notes-sidebar--collapsed"
+        }`}
+      >
         <div class="notes-sidebar-header">
           <button
             type="button"
@@ -144,34 +154,44 @@ export default function NotesEditor() {
               {documents.map((doc, i) => (
                 <li
                   key={i}
-                  class={`notes-doc-item ${i === activeIndex ? "notes-doc-item--active" : ""}`}
+                  class={`notes-doc-item ${
+                    i === activeIndex ? "notes-doc-item--active" : ""
+                  }`}
                 >
                   <div class="notes-doc-row">
-                    {editingTitleIndex === i ? (
-                      <input
-                        ref={titleInputRef}
-                        type="text"
-                        class="notes-doc-title-input"
-                        value={doc.title}
-                        onBlur={(e) => updateTitle(i, (e.target as HTMLInputElement).value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <button
-                        type="button"
-                        class="notes-doc-title-btn"
-                        onClick={() => selectDoc(i)}
-                        onDblClick={(e: Event) => {
-                          e.preventDefault();
-                          setEditingTitleIndex(i);
-                        }}
-                      >
-                        <span class="notes-doc-title-text">{doc.title}</span>
-                      </button>
-                    )}
+                    {editingTitleIndex === i
+                      ? (
+                        <input
+                          ref={titleInputRef}
+                          type="text"
+                          class="notes-doc-title-input"
+                          value={doc.title}
+                          onBlur={(e) =>
+                            updateTitle(
+                              i,
+                              (e.target as HTMLInputElement).value,
+                            )}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              (e.target as HTMLInputElement).blur();
+                            }
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      )
+                      : (
+                        <button
+                          type="button"
+                          class="notes-doc-title-btn"
+                          onClick={() => selectDoc(i)}
+                          onDblClick={(e: Event) => {
+                            e.preventDefault();
+                            setEditingTitleIndex(i);
+                          }}
+                        >
+                          <span class="notes-doc-title-text">{doc.title}</span>
+                        </button>
+                      )}
                     <button
                       type="button"
                       class="notes-doc-delete"
@@ -196,7 +216,9 @@ export default function NotesEditor() {
           class="notes-textarea"
           value={currentContent}
           onInput={handleContentInput}
-          placeholder={documents.length === 0 ? "Create a document from the panel →" : "Start typing..."}
+          placeholder={documents.length === 0
+            ? "Create a document from the panel →"
+            : "Start typing..."}
           spellcheck
           disabled={activeIndex < 0}
         />
@@ -204,7 +226,7 @@ export default function NotesEditor() {
           <a href={isDark ? "/?dark" : "/"} class="back-link">
             ← Back home
           </a>
-          <span class="notes-footer-sep"> · </span>
+          <span class="notes-footer-sep">·</span>
           <a href={isDark ? notesPath : notesPathDark} class="back-link">
             {isDark ? "Light mode" : "Dark mode"}
           </a>

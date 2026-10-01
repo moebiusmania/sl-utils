@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 const TIMER_STORAGE_KEY = "sl-utils-timer";
 
@@ -109,7 +109,9 @@ export default function CountdownTimer() {
     }
   }, [remainingSeconds]);
 
-  const displaySeconds = remainingSeconds !== null ? remainingSeconds : totalConfigured;
+  const displaySeconds = remainingSeconds !== null
+    ? remainingSeconds
+    : totalConfigured;
   const displayMinutes = Math.floor(displaySeconds / 60);
   const displaySecs = displaySeconds % 60;
 
@@ -159,7 +161,9 @@ export default function CountdownTimer() {
       </header>
 
       <div
-        class={`timer-display-wrapper${isFlashing ? " timer-display-wrapper--flash" : ""}`}
+        class={`timer-display-wrapper${
+          isFlashing ? " timer-display-wrapper--flash" : ""
+        }`}
       >
         <div class="timer-display" aria-live="polite">
           <span class="timer-value">{pad(displayMinutes)}</span>
@@ -170,58 +174,62 @@ export default function CountdownTimer() {
       </div>
 
       <div class="timer-controls">
-        {remainingSeconds === null ? (
-          <div class="timer-inputs">
-            <div class="timer-input-group">
-              <label class="timer-input-label" htmlFor="timer-minutes">
-                Minutes
-              </label>
-              <input
-                id="timer-minutes"
-                type="number"
-                class="timer-input input-field"
-                min={0}
-                max={99}
-                value={minutes}
-                onInput={handleMinutesChange}
-              />
+        {remainingSeconds === null
+          ? (
+            <div class="timer-inputs">
+              <div class="timer-input-group">
+                <label class="timer-input-label" htmlFor="timer-minutes">
+                  Minutes
+                </label>
+                <input
+                  id="timer-minutes"
+                  type="number"
+                  class="timer-input input-field"
+                  min={0}
+                  max={99}
+                  value={minutes}
+                  onInput={handleMinutesChange}
+                />
+              </div>
+              <div class="timer-input-group">
+                <label class="timer-input-label" htmlFor="timer-seconds">
+                  Seconds
+                </label>
+                <input
+                  id="timer-seconds"
+                  type="number"
+                  class="timer-input input-field"
+                  min={0}
+                  max={59}
+                  value={seconds}
+                  onInput={handleSecondsChange}
+                />
+              </div>
             </div>
-            <div class="timer-input-group">
-              <label class="timer-input-label" htmlFor="timer-seconds">
-                Seconds
-              </label>
-              <input
-                id="timer-seconds"
-                type="number"
-                class="timer-input input-field"
-                min={0}
-                max={59}
-                value={seconds}
-                onInput={handleSecondsChange}
-              />
-            </div>
-          </div>
-        ) : null}
+          )
+          : null}
 
         <div class="timer-buttons">
-          {!isRunning ? (
-            <button
-              type="button"
-              class="timer-btn timer-btn-primary"
-              onClick={handleStart}
-              disabled={!isConfigured}
-            >
-              Start
-            </button>
-          ) : (
-            <button
-              type="button"
-              class="timer-btn timer-btn-secondary"
-              onClick={handlePause}
-            >
-              Pause
-            </button>
-          )}
+          {!isRunning
+            ? (
+              <button
+                type="button"
+                class="timer-btn timer-btn-primary"
+                onClick={handleStart}
+                disabled={!isConfigured}
+              >
+                Start
+              </button>
+            )
+            : (
+              <button
+                type="button"
+                class="timer-btn timer-btn-secondary"
+                onClick={handlePause}
+              >
+                Pause
+              </button>
+            )}
           {(remainingSeconds !== null || isRunning) && (
             <button
               type="button"
@@ -236,7 +244,7 @@ export default function CountdownTimer() {
 
       <div class="timer-footer">
         <a href="/" class="back-link">← Back to Home</a>
-        <span class="timer-footer-sep"> · </span>
+        <span class="timer-footer-sep">·</span>
         <a
           href={isDark ? "/timer" : "/timer?dark"}
           class="back-link"
