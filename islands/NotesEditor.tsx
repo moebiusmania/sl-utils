@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 
 const STORAGE_KEY = "sl-utils-notes";
+const MOBILE_QUERY = "(max-width: 767px)";
 
 export type Document = { title: string; content: string };
 
@@ -37,201 +38,232 @@ function saveDocuments(docs: Document[]) {
   }
 }
 
+function isMobile(): boolean {
+  return globalThis.matchMedia?.(MOBILE_QUERY).matches ?? false;
+}
+
+function preview(content: string): string {
+  return content.trim().split("\n")[0] || "Empty note";
+}
+
+function countWords(content: string): number {
+  return content.trim().split(/\s+/).filter(Boolean).length;
+}
+
+const Icon = ({ path }: { path: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d={path} />
+  </svg>
+);
+
+const ICON_PANEL = "M3 5h18v14H3zM9 5v14";
+const ICON_PLUS = "M12 5v14M5 12h14";
+const ICON_CLOSE = "M6 6l12 12M18 6L6 18";
+
 export default function NotesEditor() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [panelOpen, setPanelOpen] = useState(true);
-  const [isDark, setIsDark] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  /* null = layout default (open on desktop, closed on mobile), decided by CSS
+     so the server render is already correct before hydration */
+  const [panelOpen, setPanelOpen] = useState<boolean | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const [editingTitleIndex, setEditingTitleIndex] = useState<number | null>(
-    null,
-  );
-
-  useEffect(() => {
-    if (editingTitleIndex !== null) {
-      const t = setTimeout(() => titleInputRef.current?.focus(), 0);
-      return () => clearTimeout(t);
-    }
-  }, [editingTitleIndex]);
 
   useEffect(() => {
     const docs = getStoredDocuments();
     setDocuments(docs);
-    if (docs.length > 0 && activeIndex === -1) setActiveIndex(0);
-    setIsDark(new URL(globalThis.location.href).searchParams.has("dark"));
+    setActiveIndex(docs.length > 0 ? 0 : -1);
+    setLoaded(true);
   }, []);
-
-  useEffect(() => {
-    if (documents.length === 0) setActiveIndex(-1);
-    else if (activeIndex >= documents.length) {
-      setActiveIndex(documents.length - 1);
-    }
-  }, [documents.length, activeIndex]);
 
   const saveDocs = useCallback((next: Document[]) => {
     setDocuments(next);
     saveDocuments(next);
   }, []);
 
+  const isPanelOpen = () => panelOpen ?? !isMobile();
+
+  const togglePanel = () => setPanelOpen(!isPanelOpen());
+
+  const closePanelOnMobile = () => {
+    if (isMobile()) setPanelOpen(false);
+  };
+
   const createDoc = useCallback(() => {
-    const next = [...documents, { title: "Untitled", content: "" }];
+    const next = [...documents, { title: "", content: "" }];
     saveDocs(next);
     setActiveIndex(next.length - 1);
-    setEditingTitleIndex(next.length - 1);
+    closePanelOnMobile();
     setTimeout(() => titleInputRef.current?.focus(), 0);
   }, [documents, saveDocs]);
 
+  const selectDoc = (index: number) => {
+    setActiveIndex(index);
+    closePanelOnMobile();
+  };
+
   const deleteDoc = useCallback(
     (index: number) => {
+      const doc = documents[index];
+      if (
+        doc.content.trim() &&
+        !confirm(`Delete "${doc.title || "Untitled"}"?`)
+      ) {
+        return;
+      }
       const next = documents.filter((_, i) => i !== index);
       saveDocs(next);
-      if (activeIndex === index) setActiveIndex(Math.max(0, index - 1));
-      else if (activeIndex > index) setActiveIndex(activeIndex - 1);
-      setEditingTitleIndex(null);
+      if (next.length === 0) setActiveIndex(-1);
+      else if (activeIndex >= index) {
+        setActiveIndex(Math.max(0, activeIndex - 1));
+      }
     },
     [documents, activeIndex, saveDocs],
   );
 
-  const selectDoc = useCallback((index: number) => {
-    setActiveIndex(index);
-    setEditingTitleIndex(null);
-  }, []);
-
-  const updateTitle = useCallback(
-    (index: number, title: string) => {
-      const next = documents.map((d, i) =>
-        i === index ? { ...d, title: title.trim() || "Untitled" } : d
-      );
-      saveDocs(next);
-      setEditingTitleIndex(null);
-    },
-    [documents, saveDocs],
-  );
-
-  const handleContentInput = useCallback(
-    (e: Event) => {
-      const target = e.target as HTMLTextAreaElement;
+  const updateActive = useCallback(
+    (patch: Partial<Document>) => {
       if (activeIndex < 0) return;
-      const next = documents.map((d, i) =>
-        i === activeIndex ? { ...d, content: target.value } : d
+      saveDocs(
+        documents.map((d, i) => i === activeIndex ? { ...d, ...patch } : d),
       );
-      saveDocs(next);
     },
     [documents, activeIndex, saveDocs],
   );
 
-  const currentContent = activeIndex >= 0
-    ? documents[activeIndex]?.content ?? ""
-    : "";
-  const notesPath = "/notes";
-  const notesPathDark = "/notes?dark";
+  const active = activeIndex >= 0 ? documents[activeIndex] : undefined;
+  const panelClass = panelOpen === null
+    ? "notes-sidebar--auto"
+    : panelOpen
+    ? "notes-sidebar--open"
+    : "notes-sidebar--closed";
 
   return (
-    <div class="notes-layout">
-      <aside
-        class={`notes-sidebar ${
-          panelOpen ? "notes-sidebar--open" : "notes-sidebar--collapsed"
-        }`}
-      >
+    <div class="notes">
+      <aside class={`notes-sidebar ${panelClass}`} aria-label="Notes">
         <div class="notes-sidebar-header">
+          <a href="/" class="back-link notes-home">← Home</a>
           <button
             type="button"
-            class="notes-panel-toggle"
-            onClick={() => setPanelOpen((o) => !o)}
-            title={panelOpen ? "Collapse panel" : "Expand panel"}
-            aria-label={panelOpen ? "Collapse panel" : "Expand panel"}
+            class="icon-btn"
+            onClick={createDoc}
+            title="New note"
+            aria-label="New note"
           >
-            {panelOpen ? "◀" : "▶"}
+            <Icon path={ICON_PLUS} />
           </button>
-          {panelOpen && <span class="notes-sidebar-title">Documents</span>}
         </div>
-        {panelOpen && (
-          <div class="notes-sidebar-body">
-            <button type="button" class="notes-new-doc" onClick={createDoc}>
-              + New document
-            </button>
-            <ul class="notes-doc-list">
-              {documents.map((doc, i) => (
-                <li
-                  key={i}
-                  class={`notes-doc-item ${
-                    i === activeIndex ? "notes-doc-item--active" : ""
-                  }`}
-                >
-                  <div class="notes-doc-row">
-                    {editingTitleIndex === i
-                      ? (
-                        <input
-                          ref={titleInputRef}
-                          type="text"
-                          class="notes-doc-title-input"
-                          value={doc.title}
-                          onBlur={(e) =>
-                            updateTitle(
-                              i,
-                              (e.target as HTMLInputElement).value,
-                            )}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              (e.target as HTMLInputElement).blur();
-                            }
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      )
-                      : (
-                        <button
-                          type="button"
-                          class="notes-doc-title-btn"
-                          onClick={() => selectDoc(i)}
-                          onDblClick={(e: Event) => {
-                            e.preventDefault();
-                            setEditingTitleIndex(i);
-                          }}
-                        >
-                          <span class="notes-doc-title-text">{doc.title}</span>
-                        </button>
-                      )}
-                    <button
-                      type="button"
-                      class="notes-doc-delete"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteDoc(i);
-                      }}
-                      title="Delete document"
-                      aria-label="Delete document"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <ul class="notes-list">
+          {documents.map((doc, i) => (
+            <li
+              key={i}
+              class={`notes-item${
+                i === activeIndex ? " notes-item--active" : ""
+              }`}
+            >
+              <button
+                type="button"
+                class="notes-item-select"
+                onClick={() => selectDoc(i)}
+                aria-current={i === activeIndex ? "true" : undefined}
+              >
+                <span class="notes-item-title">{doc.title || "Untitled"}</span>
+                <span class="notes-item-preview">{preview(doc.content)}</span>
+              </button>
+              <button
+                type="button"
+                class="icon-btn icon-btn--sm notes-item-delete"
+                onClick={() => deleteDoc(i)}
+                title="Delete note"
+                aria-label={`Delete ${doc.title || "Untitled"}`}
+              >
+                <Icon path={ICON_CLOSE} />
+              </button>
+            </li>
+          ))}
+        </ul>
       </aside>
-      <div class="notes-container">
-        <textarea
-          class="notes-textarea"
-          value={currentContent}
-          onInput={handleContentInput}
-          placeholder={documents.length === 0
-            ? "Create a document from the panel →"
-            : "Start typing..."}
-          spellcheck
-          disabled={activeIndex < 0}
-        />
-        <div class="notes-footer">
-          <a href={isDark ? "/?dark" : "/"} class="back-link">
-            ← Back home
-          </a>
-          <span class="notes-footer-sep">·</span>
-          <a href={isDark ? notesPath : notesPathDark} class="back-link">
-            {isDark ? "Light mode" : "Dark mode"}
-          </a>
+
+      <button
+        type="button"
+        class={`notes-backdrop ${panelClass}`}
+        onClick={() => setPanelOpen(false)}
+        aria-label="Close notes list"
+        tabIndex={-1}
+      />
+
+      <section class="notes-editor">
+        <div class="notes-toolbar">
+          <button
+            type="button"
+            class="icon-btn"
+            onClick={togglePanel}
+            title="Toggle notes list"
+            aria-label="Toggle notes list"
+          >
+            <Icon path={ICON_PANEL} />
+          </button>
         </div>
-      </div>
+
+        {loaded && (active
+          ? (
+            <div class="notes-page">
+              <input
+                ref={titleInputRef}
+                type="text"
+                class="notes-title"
+                value={active.title}
+                placeholder="Untitled"
+                aria-label="Note title"
+                onInput={(e) => updateActive({ title: e.currentTarget.value })}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    e.currentTarget.parentElement
+                      ?.querySelector("textarea")
+                      ?.focus();
+                  }
+                }}
+              />
+              <textarea
+                class="notes-body"
+                value={active.content}
+                placeholder="Start writing…"
+                aria-label="Note content"
+                spellcheck
+                onInput={(e) =>
+                  updateActive({ content: e.currentTarget.value })}
+              />
+            </div>
+          )
+          : (
+            <div class="notes-empty">
+              <p>No notes yet.</p>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onClick={createDoc}
+              >
+                New note
+              </button>
+            </div>
+          ))}
+
+        {active && (
+          <p class="notes-status">
+            {countWords(active.content)} words · {active.content.length}{" "}
+            characters
+          </p>
+        )}
+      </section>
     </div>
   );
 }

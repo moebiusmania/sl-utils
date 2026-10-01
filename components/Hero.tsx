@@ -1,14 +1,12 @@
-export const Hero = ({ isDark }: { isDark: boolean }) => {
+export const Hero = () => {
   return (
     <>
       <figure class="hero-figure">
-        <a href={isDark ? "/" : "/?dark"}>
-          <img
-            src="/sl.png"
-            alt="my pixel-art avatar"
-            class="hero-avatar"
-          />
-        </a>
+        <img
+          src="/sl.png"
+          alt="my pixel-art avatar"
+          class="hero-avatar"
+        />
       </figure>
       <h1 class="hero-title">
         sl-utils

@@ -1,13 +1,14 @@
 import { define } from "../utils.ts";
+import ThemeToggle from "../islands/ThemeToggle.tsx";
 
-export default define.page(function App({ Component, url }) {
-  const isDark = url ? new URL(url.href).searchParams.has("dark") : false;
-
+export default define.page(function App({ Component }) {
   return (
-    <html class={isDark ? "dark" : ""} lang="en">
+    <html lang="en">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* Blocking on purpose: sets the theme before first paint */}
+        <script src="/theme.js"></script>
         <title>sl-utils 🛠️</title>
         <meta
           name="description"
@@ -17,6 +18,7 @@ export default define.page(function App({ Component, url }) {
         <link rel="icon" href="/sl.png" />
       </head>
       <body>
+        <ThemeToggle />
         <Component />
       </body>
     </html>

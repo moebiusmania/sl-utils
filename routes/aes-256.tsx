@@ -1,5 +1,6 @@
 import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
+import { PageLayout } from "../components/PageLayout.tsx";
 import Aes256Cipher from "../islands/Aes256Cipher.tsx";
 
 export default define.page(function AES256Page() {
@@ -11,12 +12,20 @@ export default define.page(function AES256Page() {
           name="description"
           content="Encrypt/decrypt text with AES-256 in the browser"
         />
-        <link rel="stylesheet" href="/aes256.css" />
       </Head>
 
-      <main class="aes-main">
+      <PageLayout
+        title="AES-256 Encrypt / Decrypt"
+        subtitle={
+          <>
+            Everything runs locally in your browser. Output format:{" "}
+            <span class="code-span">salt.iv.ciphertext</span>
+          </>
+        }
+        wide
+      >
         <Aes256Cipher />
-      </main>
+      </PageLayout>
     </>
   );
 });

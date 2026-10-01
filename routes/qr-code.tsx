@@ -1,5 +1,6 @@
 import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
+import { PageLayout } from "../components/PageLayout.tsx";
 import QRCodeGenerator from "../islands/QRCodeGenerator.tsx";
 
 export default define.page(function QRCodePage() {
@@ -13,9 +14,12 @@ export default define.page(function QRCodePage() {
         />
       </Head>
 
-      <main class="qr-main">
+      <PageLayout
+        title="QR Code Generator"
+        subtitle="Generate QR codes for any URL quickly and easily"
+      >
         <QRCodeGenerator />
-      </main>
+      </PageLayout>
     </>
   );
 });

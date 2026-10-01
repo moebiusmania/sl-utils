@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useRef, useState } from "preact/hooks";
 
 type Tab = "encrypt" | "decrypt";
 
@@ -143,7 +143,6 @@ export default function Aes256Cipher() {
   const [tab, setTab] = useState<Tab>("encrypt");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>("");
-  const [isDark, setIsDark] = useState(false);
 
   const encryptInputRef = useRef<HTMLTextAreaElement>(null);
   const encryptKeyRef = useRef<HTMLInputElement>(null);
@@ -170,11 +169,6 @@ export default function Aes256Cipher() {
     setError("");
     setTab(next);
   };
-
-  useEffect(() => {
-    const href = globalThis.location?.href;
-    if (href) setIsDark(new URL(href).searchParams.has("dark"));
-  }, []);
 
   const handleEncrypt = async (e: Event) => {
     e.preventDefault();
@@ -244,166 +238,141 @@ export default function Aes256Cipher() {
   };
 
   return (
-    <div class="aes-main">
-      <div class="aes-container">
-        <header class="aes-header">
-          <h1 class="aes-title">AES-256 Encrypt / Decrypt</h1>
-          <p class="aes-subtitle">
-            Everything runs locally in your browser. Output format:{" "}
-            <span class="aes-code">salt.iv.ciphertext</span>
-          </p>
-        </header>
-
-        <div class="aes-tabs" role="tablist" aria-label="AES-256 mode">
-          <button
-            type="button"
-            class={`aes-tab-button${
-              tab === "encrypt" ? " aes-tab-button--active" : ""
-            }`}
-            role="tab"
-            aria-selected={tab === "encrypt"}
-            onClick={() => handleSelectTab("encrypt")}
-          >
-            Encrypt
-          </button>
-          <button
-            type="button"
-            class={`aes-tab-button${
-              tab === "decrypt" ? " aes-tab-button--active" : ""
-            }`}
-            role="tab"
-            aria-selected={tab === "decrypt"}
-            onClick={() => handleSelectTab("decrypt")}
-          >
-            Decrypt
-          </button>
-        </div>
-
-        {tab === "encrypt"
-          ? (
-            <form class="aes-form" onSubmit={handleEncrypt}>
-              <div class="form-group">
-                <label class="form-label" htmlFor="aes-encrypt-input">
-                  Input text
-                </label>
-                <textarea
-                  ref={encryptInputRef}
-                  id="aes-encrypt-input"
-                  class="aes-textarea"
-                  placeholder="Type the text you want to encrypt..."
-                  spellcheck
-                  defaultValue=""
-                />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" htmlFor="aes-encrypt-key">
-                  Secret key
-                </label>
-                <input
-                  ref={encryptKeyRef}
-                  id="aes-encrypt-key"
-                  type="password"
-                  class="input-field"
-                  placeholder="Enter secret key"
-                  autoComplete="off"
-                  defaultValue=""
-                />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" htmlFor="aes-encrypt-output">
-                  Output text
-                </label>
-                <textarea
-                  ref={encryptOutputRef}
-                  id="aes-encrypt-output"
-                  class="aes-textarea aes-output"
-                  placeholder="Encrypted output will appear here..."
-                  readOnly
-                  defaultValue=""
-                />
-              </div>
-
-              {error && <div class="input-error">{error}</div>}
-
-              <button
-                type="submit"
-                class="generate-button"
-                disabled={busy}
-              >
-                {busy ? "Encrypting..." : "Encrypt"}
-              </button>
-            </form>
-          )
-          : (
-            <form class="aes-form" onSubmit={handleDecrypt}>
-              <div class="form-group">
-                <label class="form-label" htmlFor="aes-decrypt-input">
-                  Input text
-                </label>
-                <textarea
-                  ref={decryptInputRef}
-                  id="aes-decrypt-input"
-                  class="aes-textarea"
-                  placeholder="Paste salt.iv.ciphertext here..."
-                  spellcheck={false}
-                  defaultValue=""
-                />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" htmlFor="aes-decrypt-key">
-                  Secret key
-                </label>
-                <input
-                  ref={decryptKeyRef}
-                  id="aes-decrypt-key"
-                  type="password"
-                  class="input-field"
-                  placeholder="Enter secret key"
-                  autoComplete="off"
-                  defaultValue=""
-                />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" htmlFor="aes-decrypt-output">
-                  Output text
-                </label>
-                <textarea
-                  ref={decryptOutputRef}
-                  id="aes-decrypt-output"
-                  class="aes-textarea aes-output"
-                  placeholder="Decrypted output will appear here..."
-                  readOnly
-                  defaultValue=""
-                />
-              </div>
-
-              {error && <div class="input-error">{error}</div>}
-
-              <button
-                type="submit"
-                class="generate-button"
-                disabled={busy}
-              >
-                {busy ? "Decrypting..." : "Decrypt"}
-              </button>
-            </form>
-          )}
-
-        <div class="aes-footer">
-          <a href="/" class="back-link">← Back to Home</a>
-          <span class="aes-footer-sep">·</span>
-          <a
-            href={isDark ? "/aes-256" : "/aes-256?dark"}
-            class="back-link"
-          >
-            {isDark ? "Light mode" : "Dark mode"}
-          </a>
-        </div>
+    <>
+      <div class="tabs" role="tablist" aria-label="AES-256 mode">
+        <button
+          type="button"
+          class={`tab${tab === "encrypt" ? " tab--active" : ""}`}
+          role="tab"
+          aria-selected={tab === "encrypt"}
+          onClick={() => handleSelectTab("encrypt")}
+        >
+          Encrypt
+        </button>
+        <button
+          type="button"
+          class={`tab${tab === "decrypt" ? " tab--active" : ""}`}
+          role="tab"
+          aria-selected={tab === "decrypt"}
+          onClick={() => handleSelectTab("decrypt")}
+        >
+          Decrypt
+        </button>
       </div>
-    </div>
+
+      {tab === "encrypt"
+        ? (
+          <form class="form" onSubmit={handleEncrypt}>
+            <div class="form-group">
+              <label class="form-label" htmlFor="aes-encrypt-input">
+                Input text
+              </label>
+              <textarea
+                ref={encryptInputRef}
+                id="aes-encrypt-input"
+                class="input input-textarea"
+                placeholder="Type the text you want to encrypt..."
+                spellcheck
+                defaultValue=""
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" htmlFor="aes-encrypt-key">
+                Secret key
+              </label>
+              <input
+                ref={encryptKeyRef}
+                id="aes-encrypt-key"
+                type="password"
+                class="input"
+                placeholder="Enter secret key"
+                autoComplete="off"
+                defaultValue=""
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" htmlFor="aes-encrypt-output">
+                Output text
+              </label>
+              <textarea
+                ref={encryptOutputRef}
+                id="aes-encrypt-output"
+                class="input input-textarea input-mono"
+                placeholder="Encrypted output will appear here..."
+                readOnly
+                defaultValue=""
+              />
+            </div>
+
+            {error && <p class="error-text">{error}</p>}
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-block"
+              disabled={busy}
+            >
+              {busy ? "Encrypting..." : "Encrypt"}
+            </button>
+          </form>
+        )
+        : (
+          <form class="form" onSubmit={handleDecrypt}>
+            <div class="form-group">
+              <label class="form-label" htmlFor="aes-decrypt-input">
+                Input text
+              </label>
+              <textarea
+                ref={decryptInputRef}
+                id="aes-decrypt-input"
+                class="input input-textarea"
+                placeholder="Paste salt.iv.ciphertext here..."
+                spellcheck={false}
+                defaultValue=""
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" htmlFor="aes-decrypt-key">
+                Secret key
+              </label>
+              <input
+                ref={decryptKeyRef}
+                id="aes-decrypt-key"
+                type="password"
+                class="input"
+                placeholder="Enter secret key"
+                autoComplete="off"
+                defaultValue=""
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" htmlFor="aes-decrypt-output">
+                Output text
+              </label>
+              <textarea
+                ref={decryptOutputRef}
+                id="aes-decrypt-output"
+                class="input input-textarea input-mono"
+                placeholder="Decrypted output will appear here..."
+                readOnly
+                defaultValue=""
+              />
+            </div>
+
+            {error && <p class="error-text">{error}</p>}
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-block"
+              disabled={busy}
+            >
+              {busy ? "Decrypting..." : "Decrypt"}
+            </button>
+          </form>
+        )}
+    </>
   );
 }

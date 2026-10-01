@@ -64,14 +64,9 @@ export default function CountdownTimer() {
   const [seconds, setSeconds] = useState(() => getStoredTimer().seconds);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
   const intervalRef = useRef<number | null>(null);
   const wasRunningRef = useRef(false);
-
-  useEffect(() => {
-    setIsDark(new URL(location.href).searchParams.has("dark"));
-  }, []);
 
   const totalConfigured = minutes * 60 + seconds;
   const isConfigured = totalConfigured > 0;
@@ -158,14 +153,7 @@ export default function CountdownTimer() {
   };
 
   return (
-    <div class="timer-container">
-      <header class="timer-header">
-        <h1 class="timer-title">Countdown Timer</h1>
-        <p class="timer-subtitle">
-          Set minutes and seconds, then start the countdown
-        </p>
-      </header>
-
+    <>
       <div
         class={`timer-display-wrapper${
           isFlashing ? " timer-display-wrapper--flash" : ""
@@ -183,28 +171,28 @@ export default function CountdownTimer() {
         {remainingSeconds === null
           ? (
             <div class="timer-inputs">
-              <div class="timer-input-group">
-                <label class="timer-input-label" htmlFor="timer-minutes">
+              <div class="form-group timer-input-group">
+                <label class="form-label" htmlFor="timer-minutes">
                   Minutes
                 </label>
                 <input
                   id="timer-minutes"
                   type="number"
-                  class="timer-input input-field"
+                  class="input timer-input"
                   min={0}
                   max={99}
                   value={minutes}
                   onInput={handleMinutesChange}
                 />
               </div>
-              <div class="timer-input-group">
-                <label class="timer-input-label" htmlFor="timer-seconds">
+              <div class="form-group timer-input-group">
+                <label class="form-label" htmlFor="timer-seconds">
                   Seconds
                 </label>
                 <input
                   id="timer-seconds"
                   type="number"
-                  class="timer-input input-field"
+                  class="input timer-input"
                   min={0}
                   max={59}
                   value={seconds}
@@ -220,7 +208,7 @@ export default function CountdownTimer() {
             ? (
               <button
                 type="button"
-                class="timer-btn timer-btn-primary"
+                class="btn btn-lg btn-primary"
                 onClick={handleStart}
                 disabled={!isConfigured}
               >
@@ -230,7 +218,7 @@ export default function CountdownTimer() {
             : (
               <button
                 type="button"
-                class="timer-btn timer-btn-secondary"
+                class="btn btn-lg btn-secondary"
                 onClick={handlePause}
               >
                 Pause
@@ -239,7 +227,7 @@ export default function CountdownTimer() {
           {(remainingSeconds !== null || isRunning) && (
             <button
               type="button"
-              class="timer-btn timer-btn-outline"
+              class="btn btn-lg btn-secondary"
               onClick={handleReset}
             >
               Reset
@@ -247,17 +235,6 @@ export default function CountdownTimer() {
           )}
         </div>
       </div>
-
-      <div class="timer-footer">
-        <a href="/" class="back-link">← Back to Home</a>
-        <span class="timer-footer-sep">·</span>
-        <a
-          href={isDark ? "/timer" : "/timer?dark"}
-          class="back-link"
-        >
-          {isDark ? "Light mode" : "Dark mode"}
-        </a>
-      </div>
-    </div>
+    </>
   );
 }

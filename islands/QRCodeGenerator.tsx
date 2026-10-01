@@ -65,23 +65,16 @@ export default function QRCodeGenerator() {
   };
 
   return (
-    <div class="qr-container">
-      <header class="qr-header">
-        <h1 class="qr-title">QR Code Generator</h1>
-        <p class="qr-subtitle">
-          Generate QR codes for any URL quickly and easily
-        </p>
-      </header>
-
-      <form class="qr-form" onSubmit={handleSubmit}>
+    <>
+      <form class="form" onSubmit={handleSubmit}>
         <div class="form-group">
           <label class="form-label" htmlFor="url">
-            Enter URL
+            URL
           </label>
           <input
             type="url"
             id="url"
-            class="url-input"
+            class="input"
             placeholder="https://example.com"
             value={url}
             onInput={(e) => {
@@ -90,57 +83,44 @@ export default function QRCodeGenerator() {
             }}
           />
           {url && !isValidUrl(url) && (
-            <p class="input-error">Please enter a valid URL</p>
+            <p class="error-text">Please enter a valid URL</p>
           )}
         </div>
 
-        {error && (
-          <div class="error-message">
-            {error}
-          </div>
-        )}
+        {error && <p class="error-text">{error}</p>}
 
         <button
           type="submit"
-          class="generate-button"
+          class="btn btn-primary btn-block"
           disabled={isGenerating || !url.trim() || !isValidUrl(url)}
         >
-          {isGenerating ? "Generating..." : "Generate QR Code"}
+          {isGenerating ? "Generating..." : "Generate QR code"}
         </button>
       </form>
 
       {qrCodeSvg && (
-        <div class="qr-result">
-          <label class="result-label">Generated QR Code:</label>
-          <div class="qr-display">
-            <div class="qr-code">
-              <img
-                src={`data:image/svg+xml;charset=utf-8,${
-                  encodeURIComponent(qrCodeSvg)
-                }`}
-                alt="Generated QR code"
-              />
-            </div>
-            <div class="qr-actions">
-              <button
-                type="button"
-                class="download-button"
-                onClick={downloadQRCode}
-                title="Download QR code as SVG"
-              >
-                📥 Download SVG
-              </button>
-            </div>
+        <div class="result result--center">
+          <div class="qr-code">
+            <img
+              src={`data:image/svg+xml;charset=utf-8,${
+                encodeURIComponent(qrCodeSvg)
+              }`}
+              alt="Generated QR code"
+            />
           </div>
           <p class="qr-info">
-            Scan this QR code to visit: <span class="url-display">{url}</span>
+            Scan to visit <span class="code-span">{url}</span>
           </p>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onClick={downloadQRCode}
+            title="Download QR code as SVG"
+          >
+            Download SVG
+          </button>
         </div>
       )}
-
-      <div class="qr-footer">
-        <a href="/" class="back-link">← Back to Home</a>
-      </div>
-    </div>
+    </>
   );
 }

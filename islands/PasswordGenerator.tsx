@@ -8,6 +8,8 @@ interface PasswordOptions {
   uppercase: boolean;
 }
 
+type CharacterType = Exclude<keyof PasswordOptions, "length">;
+
 export default function PasswordGenerator() {
   const [options, setOptions] = useState<PasswordOptions>({
     length: 12,
@@ -63,19 +65,19 @@ export default function PasswordGenerator() {
     setOptions((prev) => ({ ...prev, [key]: value }));
   };
 
-  return (
-    <div class="password-container">
-      <header class="password-header">
-        <h1 class="password-title">Password Generator</h1>
-        <p class="password-subtitle">
-          Create secure passwords with customizable options
-        </p>
-      </header>
+  const characterTypes: { key: CharacterType; label: string }[] = [
+    { key: "lowercase", label: "Lowercase (a-z)" },
+    { key: "uppercase", label: "Uppercase (A-Z)" },
+    { key: "numbers", label: "Numbers (0-9)" },
+    { key: "symbols", label: "Symbols (!@#$...)" },
+  ];
 
-      <form class="password-form" onSubmit={handleSubmit}>
+  return (
+    <>
+      <form class="form" onSubmit={handleSubmit}>
         <div class="form-group">
           <label class="form-label" htmlFor="length">
-            Password Length: {options.length}
+            Length: {options.length}
           </label>
           <input
             type="range"
@@ -93,86 +95,50 @@ export default function PasswordGenerator() {
           </div>
         </div>
 
-        <div class="form-group">
-          <legend class="form-legend">Character Types</legend>
+        <fieldset class="form-group">
+          <legend class="form-label">Character types</legend>
           <div class="checkbox-grid">
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                class="form-checkbox"
-                checked={options.lowercase}
-                onChange={(e) =>
-                  updateOption("lowercase", e.currentTarget.checked)}
-              />
-              <span class="checkbox-text">Lowercase (a-z)</span>
-            </label>
-
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                class="form-checkbox"
-                checked={options.uppercase}
-                onChange={(e) =>
-                  updateOption("uppercase", e.currentTarget.checked)}
-              />
-              <span class="checkbox-text">Uppercase (A-Z)</span>
-            </label>
-
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                class="form-checkbox"
-                checked={options.numbers}
-                onChange={(e) =>
-                  updateOption("numbers", e.currentTarget.checked)}
-              />
-              <span class="checkbox-text">Numbers (0-9)</span>
-            </label>
-
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                class="form-checkbox"
-                checked={options.symbols}
-                onChange={(e) =>
-                  updateOption("symbols", e.currentTarget.checked)}
-              />
-              <span class="checkbox-text">Symbols (!@#$...)</span>
-            </label>
+            {characterTypes.map(({ key, label }) => (
+              <label class="checkbox-label" key={key}>
+                <input
+                  type="checkbox"
+                  checked={options[key]}
+                  onChange={(e) =>
+                    updateOption(key, e.currentTarget.checked)}
+                />
+                {label}
+              </label>
+            ))}
           </div>
-        </div>
+        </fieldset>
 
         <button
           type="submit"
-          class="generate-button"
+          class="btn btn-primary btn-block"
           disabled={isGenerating ||
             (!options.lowercase && !options.uppercase && !options.numbers &&
               !options.symbols)}
         >
-          {isGenerating ? "Generating..." : "Generate Password"}
+          {isGenerating ? "Generating..." : "Generate password"}
         </button>
       </form>
 
       {generatedPassword && (
-        <div class="password-result">
-          <label class="result-label">Generated Password:</label>
-          <div class="password-display">
-            <code class="password-text">{generatedPassword}</code>
+        <div class="result">
+          <span class="form-label">Generated password</span>
+          <div class="output-row">
+            <code class="output-text">{generatedPassword}</code>
             <button
               type="button"
-              class="copy-button"
+              class="btn btn-secondary"
               onClick={copyToClipboard}
               title="Copy to clipboard"
             >
-              {copied ? "✓ Copied!" : "📋 Copy"}
+              {copied ? "✓ Copied" : "Copy"}
             </button>
           </div>
         </div>
       )}
-
-      <div class="password-footer">
-        <a href="/" class="back-link">← Back to Home</a>
-      </div>
-    </div>
+    </>
   );
 }

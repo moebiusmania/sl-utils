@@ -13,7 +13,7 @@ export default define.page(function NotesPage() {
         />
       </Head>
 
-      <main class="notes-main">
+      <main>
         <NotesEditor />
       </main>
     </>

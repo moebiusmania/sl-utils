@@ -1,5 +1,6 @@
 import { Head } from "fresh/runtime";
 import { define } from "../utils.ts";
+import { PageLayout } from "../components/PageLayout.tsx";
 import CountdownTimer from "../islands/CountdownTimer.tsx";
 
 export default define.page(function TimerPage() {
@@ -13,9 +14,13 @@ export default define.page(function TimerPage() {
         />
       </Head>
 
-      <main class="timer-main">
+      <PageLayout
+        title="Countdown Timer"
+        subtitle="Set minutes and seconds, then start the countdown"
+        wide
+      >
         <CountdownTimer />
-      </main>
+      </PageLayout>
     </>
   );
 });

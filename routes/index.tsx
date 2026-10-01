@@ -53,7 +53,7 @@ export default define.page(function Home() {
   return (
     <main class="index-main">
       <div class="index-container">
-        <Hero isDark={false} />
+        <Hero />
         <hr class="index-divider" />
         <table class="index-table">
           <thead>
