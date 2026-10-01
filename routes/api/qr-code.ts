@@ -13,7 +13,7 @@ export const handler = define.handlers({
       );
     }
 
-    const qr = qrcode(url, { output: "svg" });
+    const qr = qrcode(url, { output: "svg", border: 4 });
     return new Response(qr, {
       headers: { "Content-Type": "image/svg+xml" },
     });
