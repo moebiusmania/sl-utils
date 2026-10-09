@@ -19,6 +19,11 @@ const data = [
     methods: "GET",
     description: "Precompiled MIT License text",
   },
+  {
+    endpoint: "/api/meta",
+    methods: "GET",
+    description: "Extract the sharing metadata of a given URL",
+  },
 ];
 
 const pages = [
@@ -46,6 +51,11 @@ const pages = [
     path: "/aes-256",
     title: "AES-256 Encrypt/Decrypt",
     description: "Encrypt/decrypt text with AES-256 in your browser",
+  },
+  {
+    path: "/social-preview",
+    title: "Social Preview",
+    description: "Preview how a link looks when shared on social networks",
   },
 ];
 
