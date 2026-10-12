@@ -1,0 +1,38 @@
+{{define "title"}}Countdown Timer - sl-utils 🛠️{{end}}
+{{define "description"}}A simple countdown timer with minutes and seconds{{end}}
+{{define "scripts"}}<script defer src="{{asset "/js/timer.js"}}"></script>{{end}}
+
+{{define "content"}}{{template "page" .}}{{end}}
+{{define "page-attrs"}} x-data="countdownTimer"{{end}}
+{{define "page-wide"}} page-container--wide{{end}}
+{{define "page-title"}}Countdown Timer{{end}}
+{{define "page-subtitle"}}<p class="page-subtitle">Set minutes and seconds, then start the countdown</p>{{end}}
+
+{{/* The server renders the default 05:00; the stored timer is applied on init */}}
+{{define "page-body"}}
+<div class="timer-display-wrapper" :class="{ 'timer-display-wrapper--flash': isFlashing }">
+  <div class="timer-display" aria-live="polite">
+    <span class="timer-value" x-text="pad(displayMinutes)">05</span>
+    <span class="timer-separator">:</span>
+    <span class="timer-value" x-text="pad(displaySecs)">00</span>
+  </div>
+  <p class="timer-display-label">minutes : seconds</p>
+</div>
+<div class="timer-controls">
+  <div class="timer-inputs" x-show="remaining === null">
+    <div class="form-group timer-input-group">
+      <label class="form-label" for="timer-minutes">Minutes</label>
+      <input id="timer-minutes" type="number" class="input timer-input" min="0" max="99" value="5" :value="minutes" @input="setMinutes($event)">
+    </div>
+    <div class="form-group timer-input-group">
+      <label class="form-label" for="timer-seconds">Seconds</label>
+      <input id="timer-seconds" type="number" class="input timer-input" min="0" max="59" value="0" :value="seconds" @input="setSeconds($event)">
+    </div>
+  </div>
+  <div class="timer-buttons">
+    <button type="button" class="btn btn-lg btn-primary" x-show="!isRunning" :disabled="!isConfigured" @click="start()">Start</button>
+    <template x-if="isRunning"><button type="button" class="btn btn-lg btn-secondary" @click="pause()">Pause</button></template>
+    <template x-if="remaining !== null || isRunning"><button type="button" class="btn btn-lg btn-secondary" @click="reset()">Reset</button></template>
+  </div>
+</div>
+{{end}}

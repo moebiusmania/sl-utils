@@ -1,0 +1,50 @@
+{{define "title"}}Notes - sl-utils 🛠️{{end}}
+{{define "description"}}A simple full-page notes editor with local storage{{end}}
+{{define "scripts"}}<script defer src="{{asset "/js/notes.js"}}"></script>{{end}}
+
+{{/* The panel class starts as notes-sidebar--auto: CSS opens it on desktop
+     and closes it on mobile, so the server render is already correct. */}}
+{{define "content"}}
+<main>
+  <div class="notes" x-data="notesEditor">
+    <aside class="notes-sidebar notes-sidebar--auto" :class="panelClasses" aria-label="Notes">
+      <div class="notes-sidebar-header">
+        <a href="/" class="back-link notes-home">← Home</a>
+        <button type="button" class="icon-btn" title="New note" aria-label="New note" @click="createDoc()">{{template "icon" "M12 5v14M5 12h14"}}</button>
+      </div>
+      <ul class="notes-list">
+        <template x-for="(doc, i) in documents" :key="i">
+          <li class="notes-item" :class="{ 'notes-item--active': i === activeIndex }">
+            <button type="button" class="notes-item-select" :aria-current="i === activeIndex ? 'true' : null" @click="selectDoc(i)">
+              <span class="notes-item-title" x-text="doc.title || 'Untitled'"></span>
+              <span class="notes-item-preview" x-text="preview(doc.content)"></span>
+            </button>
+            <button type="button" class="icon-btn icon-btn--sm notes-item-delete" title="Delete note" :aria-label="`Delete ${doc.title || 'Untitled'}`" @click="deleteDoc(i)">{{template "icon" "M6 6l12 12M18 6L6 18"}}</button>
+          </li>
+        </template>
+      </ul>
+    </aside>
+    <button type="button" class="notes-backdrop notes-sidebar--auto" :class="panelClasses" aria-label="Close notes list" tabindex="-1" @click="panelOpen = false"></button>
+    <section class="notes-editor">
+      <div class="notes-toolbar">
+        <button type="button" class="icon-btn" title="Toggle notes list" aria-label="Toggle notes list" @click="togglePanel()">{{template "icon" "M3 5h18v14H3zM9 5v14"}}</button>
+      </div>
+      <template x-if="loaded && active">
+        <div class="notes-page">
+          <input type="text" class="notes-title" :value="active.title" placeholder="Untitled" aria-label="Note title" @input="updateActive({ title: $event.target.value })" @keydown.enter.prevent="$el.parentElement.querySelector('textarea')?.focus()">
+          <textarea class="notes-body" :value="active.content" placeholder="Start writing…" aria-label="Note content" spellcheck="true" @input="updateActive({ content: $event.target.value })"></textarea>
+        </div>
+      </template>
+      <template x-if="loaded && !active">
+        <div class="notes-empty">
+          <p>No notes yet.</p>
+          <button type="button" class="btn btn-secondary" @click="createDoc()">New note</button>
+        </div>
+      </template>
+      <template x-if="active">
+        <p class="notes-status" x-text="`${countWords(active.content)} words · ${active.content.length} characters`"></p>
+      </template>
+    </section>
+  </div>
+</main>
+{{end}}

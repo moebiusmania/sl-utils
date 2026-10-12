@@ -1,0 +1,128 @@
+{{define "title"}}Social Preview - sl-utils 🛠️{{end}}
+{{define "description"}}See how a link will look when shared on social networks{{end}}
+{{define "scripts"}}<script defer src="{{asset "/js/social-preview.js"}}"></script>{{end}}
+
+{{define "content"}}{{template "page" .}}{{end}}
+{{define "page-attrs"}} x-data="socialPreview"{{end}}
+{{define "page-wide"}} page-container--wide{{end}}
+{{define "page-title"}}Social Preview{{end}}
+{{define "page-subtitle"}}<p class="page-subtitle">See how a link will look when shared on social networks</p>{{end}}
+
+{{define "page-body"}}
+<form class="form" hx-get="/social-preview/fetch" hx-target="this" hx-swap="afterend" :hx-vals="params"
+  @htmx:before-request="loading = true; error = ''; removeResults()"
+  @htmx:after-request="loading = false"
+  @htmx:response-error="error = $event.detail.xhr.responseText"
+  @htmx:send-error="error = 'Failed to fetch'">
+  <div class="form-group">
+    <label class="form-label" for="url">URL</label>
+    <input type="url" id="url" class="input" placeholder="https://example.com" value="" x-model="url" @input="error = ''">
+    <template x-if="url && !isValidUrl(url)"><p class="error-text">Please enter a valid URL</p></template>
+  </div>
+  <template x-if="error"><p class="error-text" x-text="error"></p></template>
+  <button type="submit" class="btn btn-primary btn-block" disabled :disabled="loading || !url.trim() || !isValidUrl(url)" x-text="loading ? 'Loading...' : 'Preview'">Preview</button>
+</form>
+{{end}}
+
+{{/* htmx fragment: the previews of a page */}}
+{{define "results"}}
+<div class="social-results">
+  <section class="social-section">
+    <h2 class="social-section-title">Google</h2>
+    <div class="social-google">
+      <div class="social-google-site">
+        {{template "favicon" .Meta.Favicon}}
+        <div>
+          <div class="social-google-name">{{or .Meta.SiteName .Host}}</div>
+          <div class="social-google-url">{{.Origin}}{{if .Crumbs}} › {{.Crumbs}}{{end}}</div>
+        </div>
+      </div>
+      <div class="social-google-title">{{truncate .Meta.Title 60}}</div>
+      <div class="social-google-desc">{{truncate .Meta.Description 160}}</div>
+    </div>
+  </section>
+  <section class="social-section">
+    <h2 class="social-section-title">X / Twitter</h2>
+    {{if eq .Meta.TwitterCard "summary"}}
+    <div class="social-x social-x--small">
+      {{template "preview-image" (image .Meta.Image "social-x-thumb")}}
+      <div class="social-x-body">
+        <div class="social-muted">{{.Host}}</div>
+        <div class="social-x-title">{{.Meta.Title}}</div>
+        <div class="social-muted social-clamp-2">{{.Meta.Description}}</div>
+      </div>
+    </div>
+    {{else}}
+    <div class="social-x">
+      <div class="social-x-large">
+        {{template "preview-image" (image .Meta.Image "social-image")}}
+        <span class="social-x-overlay">{{truncate .Meta.Title 70}}</span>
+      </div>
+      <div class="social-muted social-x-from">From {{.Host}}</div>
+    </div>
+    {{end}}
+  </section>
+  <section class="social-section">
+    <h2 class="social-section-title">Facebook</h2>
+    <div class="social-card social-facebook">
+      {{template "preview-image" (image .Meta.Image "social-image")}}
+      <div class="social-card-body">
+        <div class="social-upper">{{.Host}}</div>
+        <div class="social-card-title social-clamp-2">{{.Meta.Title}}</div>
+        <div class="social-muted social-clamp-1">{{.Meta.Description}}</div>
+      </div>
+    </div>
+  </section>
+  <section class="social-section">
+    <h2 class="social-section-title">LinkedIn</h2>
+    <div class="social-card social-linkedin">
+      {{template "preview-image" (image .Meta.Image "social-image")}}
+      <div class="social-card-body">
+        <div class="social-card-title social-clamp-2">{{.Meta.Title}}</div>
+        <div class="social-muted">{{.Host}}</div>
+      </div>
+    </div>
+  </section>
+  <section class="social-section">
+    <h2 class="social-section-title">Slack</h2>
+    <div class="social-chat social-chat--slack">
+      <div class="social-chat-site">{{template "favicon" .Meta.Favicon}}{{or .Meta.SiteName .Host}}</div>
+      <div class="social-chat-title">{{.Meta.Title}}</div>
+      <div class="social-chat-desc social-clamp-3">{{.Meta.Description}}</div>
+      {{if .Meta.Image}}{{template "preview-image" (image .Meta.Image "social-chat-image")}}{{end}}
+    </div>
+  </section>
+  <section class="social-section">
+    <h2 class="social-section-title">Discord</h2>
+    {{/* Set through the CSSOM, like before: invalid colors are ignored */}}
+    <div class="social-chat social-chat--discord"{{if .Meta.ThemeColor}} data-theme-color="{{.Meta.ThemeColor}}" x-init="$el.style.borderLeftColor = $el.dataset.themeColor"{{end}}>
+      <div class="social-chat-site">{{or .Meta.SiteName .Host}}</div>
+      <div class="social-chat-title">{{.Meta.Title}}</div>
+      <div class="social-chat-desc social-clamp-3">{{.Meta.Description}}</div>
+      {{if .Meta.Image}}{{template "preview-image" (image .Meta.Image "social-chat-image")}}{{end}}
+    </div>
+  </section>
+  <section class="social-section">
+    <h2 class="social-section-title">Detected tags</h2>
+    <table class="social-tags">
+      <tbody>
+        {{range .Tags}}
+        <tr>
+          <td class="social-tags-key">{{.Key}}</td>
+          <td class="social-tags-value">{{if .Present}}{{.Value}}{{else}}<span class="social-missing">missing</span>{{end}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </section>
+</div>
+{{end}}
+
+{{/* Images fall back to an empty placeholder when they fail to load */}}
+{{define "preview-image"}}
+{{if .Src}}<img class="{{.Class}}" src="{{.Src}}" alt="" referrerpolicy="no-referrer" loading="lazy" @error="imageFailed($el)">{{else}}<div class="{{.Class}} social-image--empty">No image</div>{{end}}
+{{end}}
+
+{{define "favicon"}}
+{{if .}}<img class="social-favicon" src="{{rawURL .}}" alt="" referrerpolicy="no-referrer" @error="faviconFailed($el)">{{else}}<span class="social-favicon"></span>{{end}}
+{{end}}

@@ -1,0 +1,52 @@
+{{define "content"}}
+<main class="index-main">
+  <div class="index-container">
+    <figure class="hero-figure">
+      <img src="/sl.png" alt="my pixel-art avatar" class="hero-avatar">
+    </figure>
+    <h1 class="hero-title">sl-utils</h1>
+    <p class="hero-subtitle">🛠️ A collection of small utilities for myself 🤓</p>
+    <hr class="index-divider">
+    <table class="index-table">
+      <thead>
+        <tr>
+          <th class="index-table-header">Page</th>
+          <th class="index-table-header">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Pages}}
+        <tr>
+          <td class="index-table-cell"><span class="code-span"><a href="{{.path}}">{{.title}}</a></span></td>
+          <td class="index-table-cell">{{.description}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    <hr class="index-divider">
+    <table class="index-table">
+      <thead>
+        <tr>
+          <th class="index-table-header">Endpoint</th>
+          <th class="index-table-header">Methods</th>
+          <th class="index-table-header">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Endpoints}}
+        <tr>
+          <td class="index-table-cell"><span class="code-span"><a href="{{.endpoint}}">{{.endpoint}}</a></span></td>
+          <td class="index-table-cell">{{.methods}}</td>
+          <td class="index-table-cell">{{.description}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    <hr class="index-divider">
+    <footer>
+      <p class="footer-text">this website uses <strong>no trackers, no cookies, no analytics</strong>.</p>
+      <p class="footer-text">Made with ❤️ by <a class="footer-link" href="https://github.com/moebiusmania">Salvatore Laisa</a> <span class="footer-separator">·</span> <a class="footer-link" href="https://github.com/moebiusmania/sl-utils">Source Code</a></p>
+    </footer>
+  </div>
+</main>
+{{end}}

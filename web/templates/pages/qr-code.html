@@ -1,0 +1,35 @@
+{{define "title"}}QR Code Generator - sl-utils 🛠️{{end}}
+{{define "description"}}Generate QR codes for any URL quickly and easily{{end}}
+{{define "scripts"}}<script defer src="{{asset "/js/qr-code.js"}}"></script>{{end}}
+
+{{define "content"}}{{template "page" .}}{{end}}
+{{define "page-attrs"}} x-data="qrCodeGenerator"{{end}}
+{{define "page-title"}}QR Code Generator{{end}}
+{{define "page-subtitle"}}<p class="page-subtitle">Generate QR codes for any URL quickly and easily</p>{{end}}
+
+{{define "page-body"}}
+<form class="form" hx-get="/qr-code/generate" hx-target="this" hx-swap="afterend" :hx-vals="params"
+  @htmx:before-request="generating = true; error = ''; removeResult()"
+  @htmx:after-request="generating = false"
+  @htmx:response-error="error = $event.detail.xhr.responseText"
+  @htmx:send-error="error = 'Failed to fetch'">
+  <div class="form-group">
+    <label class="form-label" for="url">URL</label>
+    <input type="url" id="url" class="input" placeholder="https://example.com" value="" x-model="url" @input="error = ''">
+    <template x-if="url && !isValidUrl(url)"><p class="error-text">Please enter a valid URL</p></template>
+  </div>
+  <template x-if="error"><p class="error-text" x-text="error"></p></template>
+  <button type="submit" class="btn btn-primary btn-block" disabled :disabled="generating || !url.trim() || !isValidUrl(url)" x-text="generating ? 'Generating...' : 'Generate QR code'">Generate QR code</button>
+</form>
+{{end}}
+
+{{/* htmx fragment: the generated QR code */}}
+{{define "result"}}
+<div class="result result--center">
+  <div class="qr-code">
+    <img src="{{.Src}}" alt="Generated QR code">
+  </div>
+  <p class="qr-info">Scan to visit <span class="code-span" x-text="url">{{.URL}}</span></p>
+  <button type="button" class="btn btn-secondary" title="Download QR code as SVG" @click="download($root.querySelector('.qr-code img'))">Download SVG</button>
+</div>
+{{end}}
