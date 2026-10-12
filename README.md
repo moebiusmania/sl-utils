@@ -27,36 +27,37 @@ Some simple and small APIs (_with some companion UIs_) to make my life easier.
 
 Built on top of:
 
-- [Go](https://go.dev/) - the HTTP server and the APIs, using the standard
-  library router
-- [Inertia.js](https://inertiajs.com/) v3 - pages are Vue components rendered
-  by the Go server, with server-side rendering
-- [Vue](https://vuejs.org/) 3 and [Vite](https://vite.dev/) - the UI and its
-  build
-- [Bun](https://bun.sh/) - package manager, scripts and the SSR server runtime
+- [Go](https://go.dev/) - the HTTP server, the APIs and the HTML (standard
+  library router and `html/template`)
+- [htmx](https://htmx.org/) 2.0.11 - the forms that ask the server for results
+  (passwords, QR codes, social previews)
+- [Alpine.js](https://alpinejs.dev/) 3.17.4 - the interactive bits that run in
+  the browser (timer, notes, AES-256, form state)
 
 and some modules:
 
 - [whatwg-url](https://github.com/nlnwa/whatwg-url) - URL parsing that matches
   browsers, for `/api/meta`
 
+There is no JavaScript build step: everything, including templates and static
+files, is embedded in a single Go binary.
+
 ### How it fits together
 
-- `main.go` registers the routes; `internal/api` implements the APIs and
-  `internal/inertia` is a small Inertia adapter that renders pages into
-  `templates/app.html`.
-- `frontend/pages` holds one Vue component per page, `frontend/components` the
-  shared and interactive components.
-- Pages are server-rendered by a Bun process (the Inertia SSR server built
-  from `frontend/app.ts`). If it is not running, pages fall back to
-  client-side rendering.
-- Files in `static/` are served from the site root.
+- `main.go` registers the routes and serves `web/static` from the site root.
+- `internal/api` implements the APIs, `internal/fragments` the HTML fragments
+  requested by htmx (e.g. `GET /qr-code/generate`), `internal/views` renders
+  the templates.
+- `web/templates` holds the layout, the shared partials and one template per
+  page; `web/static/js` the Alpine components of each page.
+- htmx and Alpine are vendored in `web/static/vendor`. To update them, download
+  the new `dist/htmx.min.js` / `dist/cdn.min.js` from npm (e.g. through
+  `https://cdn.jsdelivr.net/npm/htmx.org@<version>/dist/htmx.min.js`), save
+  them with the version in the name and update `web/templates/layout.html`.
 
 ## How to use
 
-Make sure to install [Go](https://go.dev/doc/install) 1.27+ and
-[Bun](https://bun.sh/) 1.4+ on your machine. Type checking (`vue-tsc`) still
-runs on [Node.js](https://nodejs.org/), as it relies on Node-only module hooks.
+Make sure to install [Go](https://go.dev/doc/install) 1.27+ on your machine.
 
 Then, clone the repository:
 
@@ -65,33 +66,29 @@ $ git clone https://github.com/moebiusmania/sl-utils.git
 $ cd sl-utils
 ```
 
-Install dependencies and start the project on http://localhost:8080:
+Start the project in development mode on http://localhost:8080:
 
 ```
-$ bun install
-$ bun run dev
+$ go run . -dev
 ```
 
-In development the Go server proxies assets, hot reload and SSR to the Vite dev
-server, so everything goes through port 8080.
+In development, templates and static files are read from disk on every
+request: edit them and reload the page, no restart needed (Go code changes
+still need one).
 
 For production build and run:
 
 ```
-$ bun run build
-$ bun run start
+$ go build -o sl-utils .
+$ ./sl-utils
 ```
 
-This builds the client bundle, the SSR bundle and the Go binary into `dist/`,
-then runs the SSR server (`bun dist/ssr/app.js`) and the Go server
-(`dist/sl-utils`) together. The Go server listens on `$PORT` (default `8080`)
-and reaches the SSR server at `$SSR_URL` (default
-`http://127.0.0.1:13714/render`).
+The server listens on `$PORT` (default `8080`).
 
-To run the checks (type check, `go vet`, tests, formatting):
+To run the checks:
 
 ```
-$ bun run check
+$ gofmt -l . && go vet ./... && go test ./...
 ```
 
 ## License

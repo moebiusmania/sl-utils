@@ -292,43 +292,56 @@ var metaClient = &http.Client{
 	},
 }
 
+// MetaError is a failure of FetchMeta, with the HTTP status to answer.
+type MetaError struct {
+	Status  int
+	Message string
+}
+
+func (e *MetaError) Error() string { return e.Message }
+
 // Meta fetches the page at the "url" query parameter and returns its
 // sharing metadata.
 func Meta(w http.ResponseWriter, r *http.Request) {
 	input, _ := jsutil.SearchParam(r.URL.RawQuery, "url")
-	if input == "" {
-		metaError(w, "URL is required: add '?url=<url>' in the address bar", 400)
+	meta, err := FetchMeta(r.Context(), input)
+	if err != nil {
+		metaError(w, err.Message, err.Status)
 		return
+	}
+	writeJSON(w, http.StatusOK, meta)
+}
+
+// FetchMeta validates input, fetches the page and extracts its sharing
+// metadata.
+func FetchMeta(ctx context.Context, input string) (*MetaPreview, *MetaError) {
+	if input == "" {
+		return nil, &MetaError{400, "URL is required: add '?url=<url>' in the address bar"}
 	}
 
 	target, err := whatwg.Parse(input)
 	if err != nil {
-		metaError(w, "Invalid URL", 400)
-		return
+		return nil, &MetaError{400, "Invalid URL"}
 	}
 	if p := target.Protocol(); p != "http:" && p != "https:" {
-		metaError(w, "Only http and https URLs are supported", 400)
-		return
+		return nil, &MetaError{400, "Only http and https URLs are supported"}
 	}
 	if isPrivateHost(target.Hostname()) {
-		metaError(w, "Private or local addresses are not allowed", 400)
-		return
+		return nil, &MetaError{400, "Private or local addresses are not allowed"}
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), metaTimeout)
+	ctx, cancel := context.WithTimeout(ctx, metaTimeout)
 	defer cancel()
-	fail := func() {
+	fail := func() *MetaError {
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			metaError(w, "The page took too long to respond", 502)
-		} else {
-			metaError(w, "Could not fetch the page", 502)
+			return &MetaError{502, "The page took too long to respond"}
 		}
+		return &MetaError{502, "Could not fetch the page"}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
-		fail()
-		return
+		return nil, fail()
 	}
 	req.URL = requestURL(target)
 	req.Host = req.URL.Host
@@ -337,28 +350,24 @@ func Meta(w http.ResponseWriter, r *http.Request) {
 
 	res, err := metaClient.Do(req)
 	if err != nil {
-		fail()
-		return
+		return nil, fail()
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
-		metaError(w, fmt.Sprintf("The page responded with %d", res.StatusCode), 502)
-		return
+		return nil, &MetaError{502, fmt.Sprintf("The page responded with %d", res.StatusCode)}
 	}
 	contentType := strings.Join(res.Header.Values("Content-Type"), ", ")
 	if !strings.Contains(contentType, "html") {
 		if contentType == "" {
 			contentType = "unknown type"
 		}
-		metaError(w, fmt.Sprintf("Not an HTML page (%s)", contentType), 422)
-		return
+		return nil, &MetaError{422, fmt.Sprintf("Not an HTML page (%s)", contentType)}
 	}
 
 	html := readHead(res.Body)
 	if ctx.Err() != nil {
-		fail()
-		return
+		return nil, fail()
 	}
 	pageURL := target.Href(true)
 	final := res.Request.URL
@@ -374,10 +383,9 @@ func Meta(w http.ResponseWriter, r *http.Request) {
 	}
 	meta, err := ExtractMeta(html, pageURL)
 	if err != nil {
-		fail()
-		return
+		return nil, fail()
 	}
-	writeJSON(w, http.StatusOK, meta)
+	return meta, nil
 }
 
 // requestURL converts a WHATWG URL to the URL to fetch. Its path and query
@@ -415,6 +423,17 @@ func (m *orderedMap) has(key string) bool {
 
 func (m *orderedMap) get(key string) string {
 	return m.values[key]
+}
+
+// Lookup returns the value of a tag and whether it is present.
+func (m *orderedMap) Lookup(key string) (string, bool) {
+	v, ok := m.values[key]
+	return v, ok
+}
+
+// Keys returns the tag names in insertion order.
+func (m *orderedMap) Keys() []string {
+	return slices.Clone(m.keys)
 }
 
 func (m *orderedMap) set(key, value string) {

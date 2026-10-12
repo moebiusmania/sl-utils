@@ -2,6 +2,7 @@ package api
 
 import (
 	"crypto/rand"
+	"errors"
 	"math"
 	"math/big"
 	"net/http"
@@ -57,16 +58,19 @@ func GeneratePassword(o PasswordOptions) string {
 	return string(out)
 }
 
-// Password generates a password. Every character set defaults to enabled
-// and is only disabled by an explicit "false".
-func Password(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.RawQuery
+// ErrPasswordTooLong is returned for lengths above maxPasswordLength.
+var ErrPasswordTooLong = errors.New("password too long")
+
+// PasswordFromQuery generates a password from URL query parameters. Every
+// character set defaults to enabled and is only disabled by an explicit
+// "false".
+func PasswordFromQuery(rawQuery string) (string, error) {
 	enabled := func(name string) bool {
-		v, _ := jsutil.SearchParam(q, name)
+		v, _ := jsutil.SearchParam(rawQuery, name)
 		return v != "false"
 	}
 
-	lengthParam, ok := jsutil.SearchParam(q, "length")
+	lengthParam, ok := jsutil.SearchParam(rawQuery, "length")
 	if !ok || lengthParam == "" {
 		lengthParam = "12"
 	}
@@ -77,16 +81,24 @@ func Password(w http.ResponseWriter, r *http.Request) {
 	case length < 0:
 		length = 0
 	case length > maxPasswordLength:
-		internalError(w)
-		return
+		return "", ErrPasswordTooLong
 	}
 
-	password := GeneratePassword(PasswordOptions{
+	return GeneratePassword(PasswordOptions{
 		Length:    int(length),
 		Numbers:   enabled("numbers"),
 		Symbols:   enabled("symbols"),
 		Lowercase: enabled("lowercase"),
 		Uppercase: enabled("uppercase"),
-	})
+	}), nil
+}
+
+// Password generates a password.
+func Password(w http.ResponseWriter, r *http.Request) {
+	password, err := PasswordFromQuery(r.URL.RawQuery)
+	if err != nil {
+		internalError(w)
+		return
+	}
 	text(w, http.StatusOK, "text/plain", password)
 }

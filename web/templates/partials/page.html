@@ -1,0 +1,17 @@
+{{/* Layout of the tool pages. Pages define "page-title", "page-body" and
+     optionally "page-subtitle", "page-wide" and "page-attrs" (attributes
+     of <main>, e.g. an Alpine component). */}}
+{{define "page"}}
+<main class="page"{{block "page-attrs" .}}{{end}}>
+  <div class="page-container{{block "page-wide" .}}{{end}}">
+    <header class="page-header">
+      <h1 class="page-title">{{template "page-title" .}}</h1>
+      {{block "page-subtitle" .}}{{end}}
+    </header>
+    {{template "page-body" .}}
+    <footer class="page-footer">
+      <a href="/" class="back-link">← Back home</a>
+    </footer>
+  </div>
+</main>
+{{end}}

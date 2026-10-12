@@ -5,6 +5,7 @@
 package jsutil
 
 import (
+	"encoding/hex"
 	"errors"
 	"math"
 	"strings"
@@ -108,6 +109,22 @@ func percentDecode(s string) string {
 		out = append(out, s[i])
 	}
 	return strings.ToValidUTF8(string(out), "\ufffd")
+}
+
+// EncodeURIComponent mirrors the global encodeURIComponent for valid UTF-8.
+func EncodeURIComponent(s string) string {
+	const unreserved = "-_.!~*'()"
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+			(c >= '0' && c <= '9') || strings.IndexByte(unreserved, c) >= 0 {
+			b.WriteByte(c)
+		} else {
+			b.WriteString("%" + strings.ToUpper(hex.EncodeToString([]byte{c})))
+		}
+	}
+	return b.String()
 }
 
 // ErrURIMalformed is returned by DecodeURI where JavaScript throws URIError.

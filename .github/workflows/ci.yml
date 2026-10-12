@@ -22,17 +22,14 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: package.json
+      - name: Check formatting
+        run: test -z "$(gofmt -l .)"
 
-      # vue-tsc needs Node's module hooks; the runner image ships Node
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - name: Vet
+        run: go vet ./...
 
-      - name: Check
-        run: bun run check
+      - name: Test
+        run: go test ./...
 
       - name: Build
-        run: bun run build
+        run: go build -o sl-utils .

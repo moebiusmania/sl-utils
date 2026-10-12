@@ -1,8 +1,5 @@
 {
   "[go]": {
     "editor.defaultFormatter": "golang.go"
-  },
-  "[vue]": {
-    "editor.defaultFormatter": "Vue.volar"
   }
 }

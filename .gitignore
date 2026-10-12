@@ -5,11 +5,12 @@
 .env.production.local
 .env.local
 
-# Client, SSR and server builds
-dist/
-# Bun + other dependencies
-node_modules/
-vendor/
+# Server build
+/sl-utils
+# Go dependencies (web/static/vendor holds htmx and Alpine: keep it)
+/vendor/
+# Left over by the Node-based branches
+/node_modules/
 
 # macOS metadata
 .DS_Store

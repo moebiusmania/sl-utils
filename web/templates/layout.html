@@ -1,0 +1,24 @@
+{{define "layout"}}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{/* Blocking on purpose: sets the theme before first paint */}}
+    <script src="/theme.js"></script>
+    <title>{{block "title" .}}sl-utils 🛠️{{end}}</title>
+    <meta name="description" content="{{block "description" .}}A collection of small utilities for myself 🤓{{end}}">
+    <meta name="author" content="Salvatore Laisa">
+    <link rel="icon" href="/sl.png">
+    <link rel="stylesheet" href="{{asset "/styles.css"}}">
+    <script defer src="{{asset "/vendor/htmx-2.0.11.min.js"}}"></script>
+    <script defer src="{{asset "/js/common.js"}}"></script>
+    {{block "scripts" .}}{{end}}
+    {{/* Alpine last: components register on alpine:init */}}
+    <script defer src="{{asset "/vendor/alpinejs-3.17.4.min.js"}}"></script>
+  </head>
+  <body>
+    {{template "theme-toggle"}}
+    {{template "content" .}}
+  </body>
+</html>
+{{end}}

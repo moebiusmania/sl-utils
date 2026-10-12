@@ -1,0 +1,52 @@
+{{define "title"}}AES-256 Encrypt/Decrypt - sl-utils 🛠️{{end}}
+{{define "description"}}Encrypt/decrypt text with AES-256 in the browser{{end}}
+{{define "scripts"}}<script defer src="{{asset "/js/aes-256.js"}}"></script>{{end}}
+
+{{define "content"}}{{template "page" .}}{{end}}
+{{define "page-attrs"}} x-data="aes256Cipher"{{end}}
+{{define "page-wide"}} page-container--wide{{end}}
+{{define "page-title"}}AES-256 Encrypt / Decrypt{{end}}
+{{define "page-subtitle"}}<p class="page-subtitle">Everything runs locally in your browser. Output format: <span class="code-span">salt.iv.ciphertext</span></p>{{end}}
+
+{{/* Inputs are uncontrolled on purpose: secrets only live in the DOM. The
+     encrypt form is rendered by the server, the decrypt one on demand. */}}
+{{define "page-body"}}
+<div class="tabs" role="tablist" aria-label="AES-256 mode">
+  <button type="button" class="tab tab--active" role="tab" aria-selected="true" :class="{ 'tab--active': tab === 'encrypt' }" :aria-selected="tab === 'encrypt'" @click="selectTab('encrypt')">Encrypt</button>
+  <button type="button" class="tab" role="tab" aria-selected="false" :class="{ 'tab--active': tab === 'decrypt' }" :aria-selected="tab === 'decrypt'" @click="selectTab('decrypt')">Decrypt</button>
+</div>
+<form class="form" x-show="tab === 'encrypt'" @submit.prevent="encrypt()">
+  <div class="form-group">
+    <label class="form-label" for="aes-encrypt-input">Input text</label>
+    <textarea x-ref="encryptInput" id="aes-encrypt-input" class="input input-textarea" placeholder="Type the text you want to encrypt..." spellcheck="true"></textarea>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="aes-encrypt-key">Secret key</label>
+    <input x-ref="encryptKey" id="aes-encrypt-key" type="password" class="input" placeholder="Enter secret key" autocomplete="off">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="aes-encrypt-output">Output text</label>
+    <textarea x-ref="encryptOutput" id="aes-encrypt-output" class="input input-textarea input-mono" placeholder="Encrypted output will appear here..." readonly></textarea>
+  </div>
+  <template x-if="error"><p class="error-text" x-text="error"></p></template>
+  <button type="submit" class="btn btn-primary btn-block" :disabled="busy" x-text="busy ? 'Encrypting...' : 'Encrypt'">Encrypt</button>
+</form>
+<template x-if="tab === 'decrypt'">
+  <form class="form" @submit.prevent="decrypt()">
+    <div class="form-group">
+      <label class="form-label" for="aes-decrypt-input">Input text</label>
+      <textarea x-ref="decryptInput" id="aes-decrypt-input" class="input input-textarea" placeholder="Paste salt.iv.ciphertext here..." spellcheck="false"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="aes-decrypt-key">Secret key</label>
+      <input x-ref="decryptKey" id="aes-decrypt-key" type="password" class="input" placeholder="Enter secret key" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="aes-decrypt-output">Output text</label>
+      <textarea x-ref="decryptOutput" id="aes-decrypt-output" class="input input-textarea input-mono" placeholder="Decrypted output will appear here..." readonly></textarea>
+    </div>
+    <template x-if="error"><p class="error-text" x-text="error"></p></template>
+    <button type="submit" class="btn btn-primary btn-block" :disabled="busy" x-text="busy ? 'Decrypting...' : 'Decrypt'">Decrypt</button>
+  </form>
+</template>
+{{end}}
