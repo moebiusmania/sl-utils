@@ -349,7 +349,7 @@ html.dark .index-main {
 
 /* Theme toggle */
 .theme-toggle {
-  position: fixed;
+  position: absolute;
   top: var(--spacing-3);
   right: var(--spacing-3);
   z-index: 10;
