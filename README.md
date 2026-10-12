@@ -33,6 +33,7 @@ Built on top of:
   by the Go server, with server-side rendering
 - [Vue](https://vuejs.org/) 3 and [Vite](https://vite.dev/) - the UI and its
   build
+- [Bun](https://bun.sh/) - package manager, scripts and the SSR server runtime
 
 and some modules:
 
@@ -46,7 +47,7 @@ and some modules:
   `templates/app.html`.
 - `frontend/pages` holds one Vue component per page, `frontend/components` the
   shared and interactive components.
-- Pages are server-rendered by a Node process (the Inertia SSR server built
+- Pages are server-rendered by a Bun process (the Inertia SSR server built
   from `frontend/app.ts`). If it is not running, pages fall back to
   client-side rendering.
 - Files in `static/` are served from the site root.
@@ -54,7 +55,8 @@ and some modules:
 ## How to use
 
 Make sure to install [Go](https://go.dev/doc/install) 1.27+ and
-[Node.js](https://nodejs.org/) 22+ on your machine.
+[Bun](https://bun.sh/) 1.4+ on your machine. Type checking (`vue-tsc`) still
+runs on [Node.js](https://nodejs.org/), as it relies on Node-only module hooks.
 
 Then, clone the repository:
 
@@ -66,8 +68,8 @@ $ cd sl-utils
 Install dependencies and start the project on http://localhost:8080:
 
 ```
-$ npm install
-$ npm run dev
+$ bun install
+$ bun run dev
 ```
 
 In development the Go server proxies assets, hot reload and SSR to the Vite dev
@@ -76,12 +78,12 @@ server, so everything goes through port 8080.
 For production build and run:
 
 ```
-$ npm run build
-$ npm start
+$ bun run build
+$ bun run start
 ```
 
 This builds the client bundle, the SSR bundle and the Go binary into `dist/`,
-then runs the SSR server (`node dist/ssr/app.js`) and the Go server
+then runs the SSR server (`bun dist/ssr/app.js`) and the Go server
 (`dist/sl-utils`) together. The Go server listens on `$PORT` (default `8080`)
 and reaches the SSR server at `$SSR_URL` (default
 `http://127.0.0.1:13714/render`).
@@ -89,7 +91,7 @@ and reaches the SSR server at `$SSR_URL` (default
 To run the checks (type check, `go vet`, tests, formatting):
 
 ```
-$ npm run check
+$ bun run check
 ```
 
 ## License

@@ -7,7 +7,7 @@
 
 # Client, SSR and server builds
 dist/
-# npm + other dependencies
+# Bun + other dependencies
 node_modules/
 vendor/
 

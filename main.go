@@ -70,7 +70,7 @@ func main() {
 	} else {
 		version, tags, err := manifestAssets()
 		if err != nil {
-			log.Fatalf("reading the client build (run `npm run build` first): %v", err)
+			log.Fatalf("reading the client build (run `bun run build` first): %v", err)
 		}
 		cfg.Version = version
 		cfg.Assets = func() template.HTML { return tags }
