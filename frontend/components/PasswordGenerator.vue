@@ -30,10 +30,11 @@ const handleSubmit = async () => {
   try {
     const params = new URLSearchParams();
     params.append("length", options.length.toString());
-    if (options.numbers) params.append("numbers", "true");
-    if (options.symbols) params.append("symbols", "true");
-    if (options.lowercase) params.append("lowercase", "true");
-    if (options.uppercase) params.append("uppercase", "true");
+    // The API enables every set unless it is explicitly "false"
+    params.append("numbers", String(options.numbers));
+    params.append("symbols", String(options.symbols));
+    params.append("lowercase", String(options.lowercase));
+    params.append("uppercase", String(options.uppercase));
 
     const response = await fetch(`/api/password?${params.toString()}`);
     generatedPassword.value = await response.text();
