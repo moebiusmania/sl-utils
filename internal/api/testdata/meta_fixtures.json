@@ -1,0 +1,125 @@
+[
+ {
+  "url": "https://example.com/",
+  "html": "<html><head><title>Example Domain</title><meta name=viewport content='width=device-width'><link rel=icon href='data:,'></head><body><meta name=late content=x></body></html>",
+  "meta": {
+   "url": "https://example.com/",
+   "title": "Example Domain",
+   "description": "",
+   "image": "",
+   "siteName": "",
+   "favicon": "data:,",
+   "themeColor": "",
+   "twitterCard": "",
+   "twitterSite": "",
+   "tags": {
+    "viewport": "width=device-width",
+    "<title>": "Example Domain"
+   }
+  }
+ },
+ {
+  "url": "https://a.test/post/1?x=1",
+  "html": "<head>\n<meta property=\"og:title\" content=\" OG &amp; title &#x1F600; &#65; &Eacute; &bogus; \">\n<meta property=\"OG:Description\" content='single \"quoted\"'>\n<META NAME=\"description\" CONTENT=\"first\">\n<meta name=\"description\" content=\"second\">\n<meta property=\"og:image\" content=\"/img/a b.png\">\n<meta name=\"twitter:card\" content=summary>\n<meta name=\"twitter:site\" content=\"@me\">\n<meta name=\"theme-color\" content=\"#ff0000\">\n<meta itemprop=\"name\" content=\"itemprop\">\n<meta property=\"\" name=\"empty-property\" content=\"x\">\n<meta name=\"constructor\" content=\"proto\">\n<meta name=\"123\" content=\"index\">\n<meta name=\"7\" content=\"index7\">\n<meta name=\"007\" content=\"not an index\">\n<meta name=\"no-content\">\n<meta name=\"og:site_name\" content=\"Site\">\n<link rel=\"Canonical\" href=\"../canonical\">\n<link rel=\"shortcut icon\" href=\"//cdn.test/fav.ico\">\n<link rel=\"icon\" href=\"\">\n<titleX>weird</titleX>\n<title lang=en>\n  Multi\n  line &lt;title&gt;\n</title>\n</head><body><meta name=\"after\" content=\"ignored\">",
+  "meta": {
+   "url": "https://a.test/canonical",
+   "title": "OG & title 😀 A &Eacute; &bogus;",
+   "description": "single \"quoted\"",
+   "image": "https://a.test/img/a%20b.png",
+   "siteName": "Site",
+   "favicon": "https://cdn.test/fav.ico",
+   "themeColor": "#ff0000",
+   "twitterCard": "summary",
+   "twitterSite": "@me",
+   "tags": {
+    "7": "index7",
+    "123": "index",
+    "og:title": "OG & title 😀 A &Eacute; &bogus;",
+    "og:description": "single \"quoted\"",
+    "description": "first",
+    "og:image": "/img/a b.png",
+    "twitter:card": "summary",
+    "twitter:site": "@me",
+    "theme-color": "#ff0000",
+    "name": "itemprop",
+    "007": "not an index",
+    "og:site_name": "Site",
+    "<title>": "weird</titleX>\n<title lang=en>\n  Multi\n  line <title>"
+   }
+  }
+ },
+ {
+  "url": "https://b.test/",
+  "html": "<head><meta property=og:url content='https://other.test/x#frag'><meta name=twitter:image content='http://img.test/i.jpg'></head>",
+  "meta": {
+   "url": "https://other.test/x#frag",
+   "title": "",
+   "description": "",
+   "image": "http://img.test/i.jpg",
+   "siteName": "",
+   "favicon": "https://b.test/favicon.ico",
+   "themeColor": "",
+   "twitterCard": "",
+   "twitterSite": "",
+   "tags": {
+    "og:url": "https://other.test/x#frag",
+    "twitter:image": "http://img.test/i.jpg"
+   }
+  }
+ },
+ {
+  "url": "https://c.test/a/",
+  "html": "<head></ head><title>after head</title>",
+  "meta": {
+   "url": "https://c.test/a/",
+   "title": "after head",
+   "description": "",
+   "image": "",
+   "siteName": "",
+   "favicon": "https://c.test/favicon.ico",
+   "themeColor": "",
+   "twitterCard": "",
+   "twitterSite": "",
+   "tags": {
+    "<title>": "after head"
+   }
+  }
+ },
+ {
+  "url": "https://d.test/",
+  "html": "<head><title></title><meta name=application-name content=App></head >",
+  "meta": {
+   "url": "https://d.test/",
+   "title": "",
+   "description": "",
+   "image": "",
+   "siteName": "App",
+   "favicon": "https://d.test/favicon.ico",
+   "themeColor": "",
+   "twitterCard": "",
+   "twitterSite": "",
+   "tags": {
+    "application-name": "App"
+   }
+  }
+ },
+ {
+  "url": "https://e.test/",
+  "html": "<head><meta name= tab content=nbsp><meta name=x content=\"&#0;\"></head>",
+  "meta": {
+   "url": "https://e.test/",
+   "title": "",
+   "description": "",
+   "image": "",
+   "siteName": "",
+   "favicon": "https://e.test/favicon.ico",
+   "themeColor": "",
+   "twitterCard": "",
+   "twitterSite": "",
+   "tags": {
+    "tab": "nbsp",
+    "x": "\u0000"
+   }
+  }
+ }
+]

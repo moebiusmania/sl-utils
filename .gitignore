@@ -5,12 +5,11 @@
 .env.production.local
 .env.local
 
-# Fresh build directory
-_fresh/
+# Client, SSR and server builds
+dist/
 # npm + other dependencies
 node_modules/
 vendor/
-
 
 # macOS metadata
 .DS_Store

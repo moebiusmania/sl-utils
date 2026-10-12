@@ -1,0 +1,24 @@
+{
+  "name": "sl-utils",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n vite,go -c blue,green \"vite\" \"go run . -dev\"",
+    "build": "vue-tsc --noEmit && vite build && vite build --ssr && go build -o dist/sl-utils .",
+    "start": "concurrently -k -n ssr,go -c blue,green \"node dist/ssr/app.js\" \"dist/sl-utils\"",
+    "check": "vue-tsc --noEmit && go vet ./... && go test ./... && test -z \"$(gofmt -l .)\""
+  },
+  "dependencies": {
+    "@inertiajs/vue3": "3.9.1",
+    "vue": "3.5.43"
+  },
+  "devDependencies": {
+    "@inertiajs/vite": "3.9.1",
+    "@types/node": "26.6.5",
+    "@vitejs/plugin-vue": "6.0.10",
+    "concurrently": "10.0.6",
+    "typescript": "6.0.3",
+    "vite": "8.3.4",
+    "vue-tsc": "3.3.13"
+  }
+}

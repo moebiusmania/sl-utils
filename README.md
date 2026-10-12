@@ -27,39 +27,69 @@ Some simple and small APIs (_with some companion UIs_) to make my life easier.
 
 Built on top of:
 
-- [Deno](https://deno.land/) - Typescript native runtime
-- [Fresh](https://fresh.deno.dev/) v2 - 1st party Web framework (Vite-based)
+- [Go](https://go.dev/) - the HTTP server and the APIs, using the standard
+  library router
+- [Inertia.js](https://inertiajs.com/) v3 - pages are Vue components rendered
+  by the Go server, with server-side rendering
+- [Vue](https://vuejs.org/) 3 and [Vite](https://vite.dev/) - the UI and its
+  build
 
 and some modules:
 
-- [qrcode](https://jsr.io/@libs/qrcode)
+- [whatwg-url](https://github.com/nlnwa/whatwg-url) - URL parsing that matches
+  browsers, for `/api/meta`
 
-published on [Deno Deploy](https://deno.com/deploy) free tier.
+### How it fits together
+
+- `main.go` registers the routes; `internal/api` implements the APIs and
+  `internal/inertia` is a small Inertia adapter that renders pages into
+  `templates/app.html`.
+- `frontend/pages` holds one Vue component per page, `frontend/components` the
+  shared and interactive components.
+- Pages are server-rendered by a Node process (the Inertia SSR server built
+  from `frontend/app.ts`). If it is not running, pages fall back to
+  client-side rendering.
+- Files in `static/` are served from the site root.
 
 ## How to use
 
-Make sure to install Deno on your machine:
-https://deno.land/manual/getting_started/installation
+Make sure to install [Go](https://go.dev/doc/install) 1.27+ and
+[Node.js](https://nodejs.org/) 22+ on your machine.
 
 Then, clone the repository:
 
 ```
-$ git clone https://github.com/salvatorelaisa/sl-utils.git
+$ git clone https://github.com/moebiusmania/sl-utils.git
 $ cd sl-utils
 ```
 
-Install dependencies and start the project:
+Install dependencies and start the project on http://localhost:8080:
 
 ```
-$ deno install
-$ deno task dev
+$ npm install
+$ npm run dev
 ```
+
+In development the Go server proxies assets, hot reload and SSR to the Vite dev
+server, so everything goes through port 8080.
 
 For production build and run:
 
 ```
-$ deno task build
-$ deno task start
+$ npm run build
+$ npm start
+```
+
+This builds the client bundle, the SSR bundle and the Go binary into `dist/`,
+then runs the SSR server (`node dist/ssr/app.js`) and the Go server
+(`dist/sl-utils`) together. The Go server listens on `$PORT` (default `8080`)
+and reaches the SSR server at `$SSR_URL` (default
+`http://127.0.0.1:13714/render`).
+
+To run the checks (type check, `go vet`, tests, formatting):
+
+```
+$ npm run check
 ```
 
 ## License
