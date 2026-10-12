@@ -725,6 +725,8 @@ legend.form-label {
 }
 
 .tab {
+  position: relative;
+  cursor: pointer;
   padding: var(--spacing-1-5) var(--spacing-4);
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
@@ -735,6 +737,14 @@ legend.form-label {
   transition:
     color var(--transition-fast),
     background-color var(--transition-fast);
+}
+
+/* Extend the hit area over the padding and gap of .tabs, so the whole
+   tab bar is clickable without changing how it looks */
+.tab::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--spacing-0-5) - 1px);
 }
 
 .tab:hover {
