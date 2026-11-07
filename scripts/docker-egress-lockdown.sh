@@ -4,6 +4,10 @@ set -euo pipefail
 CHAIN="SL_UTILS_EGRESS"
 INPUT_CHAIN="SL_UTILS_INPUT"
 SUBNET="${SL_UTILS_SUBNET:-172.28.0.0/24}"
+# Upstream resolvers that Docker's embedded DNS forwards to. Queries leave from
+# the container namespace, so they must be allowed before the private-range drops.
+# Default: Tailscale MagicDNS, the host resolver.
+DNS_SERVERS="${SL_UTILS_DNS:-100.100.100.100}"
 IPTABLES=(iptables -w 5)
 
 if [[ ${EUID} -ne 0 ]]; then
@@ -49,9 +53,12 @@ fi
 # Allow return traffic for connections that were already permitted.
 "${IPTABLES[@]}" -A "$CHAIN" -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
 
-# Docker's embedded DNS resolver.
-"${IPTABLES[@]}" -A "$CHAIN" -d 127.0.0.11 -p udp --dport 53 -j RETURN
-"${IPTABLES[@]}" -A "$CHAIN" -d 127.0.0.11 -p tcp --dport 53 -j RETURN
+# Upstream DNS used by Docker's embedded resolver (127.0.0.11 itself never
+# leaves the container namespace, so it needs no rule here).
+for dns in $DNS_SERVERS; do
+  "${IPTABLES[@]}" -A "$CHAIN" -d "$dns" -p udp --dport 53 -j RETURN
+  "${IPTABLES[@]}" -A "$CHAIN" -d "$dns" -p tcp --dport 53 -j RETURN
+done
 
 # Block the Compose network itself (gateway and any other containers).
 "${IPTABLES[@]}" -A "$CHAIN" -d "$SUBNET" -j DROP

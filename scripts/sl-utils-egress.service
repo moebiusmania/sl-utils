@@ -1,0 +1,14 @@
+[Unit]
+Description=sl-utils container egress lockdown (iptables)
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/sl-utils-egress-lockdown
+ExecStop=/usr/local/sbin/sl-utils-egress-lockdown --remove
+
+[Install]
+WantedBy=docker.service
