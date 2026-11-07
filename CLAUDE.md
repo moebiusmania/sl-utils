@@ -58,8 +58,8 @@ call if you touch the fetch logic.
   with `BUN_VERSION`). App files stay root-owned; the process runs as 65532.
 - `compose.yaml`: read-only rootfs, all caps dropped, resource limits,
   published on `127.0.0.1:3200` by default (`SL_UTILS_BIND`, `SL_UTILS_PORT`,
-  `SL_UTILS_SUBNET`). On the production host it sits behind a NetBird reverse
-  proxy that targets localhost.
+  `SL_UTILS_SUBNET`). It is intended to sit behind a reverse proxy on
+  localhost.
 - `scripts/docker-egress-lockdown.sh` + `scripts/sl-utils-egress.service`:
   host iptables rules limiting the container to DNS (default
   `SL_UTILS_DNS=100.100.100.100`, Tailscale MagicDNS) and public TCP 80/443.

@@ -44,7 +44,7 @@ https://bun.sh/docs/installation
 Then, clone the repository:
 
 ```
-$ git clone https://github.com/salvatorelaisa/sl-utils.git
+$ git clone https://github.com/moebiusmania/sl-utils.git
 $ cd sl-utils
 ```
 
