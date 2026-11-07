@@ -1,0 +1,15 @@
+.git
+.github
+.vscode
+node_modules
+dist
+.vite
+.env
+.env.*
+*.log
+.DS_Store
+README.md
+LICENSE
+Dockerfile
+compose.yaml
+scripts
