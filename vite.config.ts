@@ -1,6 +1,7 @@
+import preact from "@preact/preset-vite";
+import vike from "vike/plugin";
 import { defineConfig } from "vite";
-import { fresh } from "@fresh/plugin-vite";
 
 export default defineConfig({
-  plugins: [fresh()],
+  plugins: [preact(), vike()],
 });

@@ -88,7 +88,7 @@
   --breakpoint-lg: 1024px;
 }
 
-/* Theme tokens: light by default, dark when html.dark is set (see static/theme.js) */
+/* Theme tokens: light by default, dark when html.dark is set (see public/theme.js) */
 :root {
   color-scheme: light;
   --bg: var(--color-white);

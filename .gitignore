@@ -5,12 +5,13 @@
 .env.production.local
 .env.local
 
-# Fresh build directory
-_fresh/
+# Vike / Vite build output
+dist/
+.vite/
+
 # npm + other dependencies
 node_modules/
 vendor/
-
 
 # macOS metadata
 .DS_Store

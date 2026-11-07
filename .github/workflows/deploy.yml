@@ -1,4 +1,4 @@
-name: Deploy
+name: Build
 on:
   push:
     branches: main
@@ -6,25 +6,21 @@ on:
     branches: main
 
 jobs:
-  deploy:
-    name: Deploy
+  build:
+    name: Build
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write # Needed for auth with Deno Deploy
-      contents: read # Needed to clone the repository
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Install Deno
-        uses: denoland/setup-deno@v2
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          deno-version: v2.x
+          bun-version: latest
 
       - name: Install dependencies
-        run: "deno install"
+        run: "bun install --frozen-lockfile"
 
       - name: Build step
-        run: "deno task build"
+        run: "bun run build"

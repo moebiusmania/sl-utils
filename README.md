@@ -27,19 +27,19 @@ Some simple and small APIs (_with some companion UIs_) to make my life easier.
 
 Built on top of:
 
-- [Deno](https://deno.land/) - Typescript native runtime
-- [Fresh](https://fresh.deno.dev/) v2 - 1st party Web framework (Vite-based)
+- [Bun](https://bun.sh/) - JavaScript runtime and package manager
+- [Vike](https://vike.dev/) - Vite-based SSR framework
+- [Vite](https://vite.dev/) - Frontend build tool
+- [Preact](https://preactjs.com/) - Fast 3kB alternative to React
 
 and some modules:
 
-- [qrcode](https://jsr.io/@libs/qrcode)
-
-published on [Deno Deploy](https://deno.com/deploy) free tier.
+- [uqr](https://github.com/unjs/uqr)
 
 ## How to use
 
-Make sure to install Deno on your machine:
-https://deno.land/manual/getting_started/installation
+Make sure to install Bun on your machine:
+https://bun.sh/docs/installation
 
 Then, clone the repository:
 
@@ -51,16 +51,25 @@ $ cd sl-utils
 Install dependencies and start the project:
 
 ```
-$ deno install
-$ deno task dev
+$ bun install
+$ bun run dev
+```
+
+To expose the dev server on the network:
+
+```
+$ bun run dev:host
 ```
 
 For production build and run:
 
 ```
-$ deno task build
-$ deno task start
+$ bun run build
+$ bun run start
 ```
+
+The production build is a standard Bun server in `dist/`, so it can be hosted on
+any platform that runs Bun (or Node.js).
 
 ## License
 
