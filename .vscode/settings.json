@@ -1,17 +1,16 @@
 {
-  "deno.enable": true,
-  "deno.lint": true,
-  "editor.defaultFormatter": "denoland.vscode-deno",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.defaultFormatter": "vscode.typescript-language-features",
   "[typescriptreact]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }
