@@ -80,11 +80,10 @@ Build and run with Docker Compose:
 $ docker compose up -d --build
 ```
 
-The app listens on port `3000` inside the container and is published on port
-`3200`:
-
-- `http://localhost:3200`
-- `http://<host-ip>:3200` from another device on the LAN
+The app listens on port `3000` inside the container and is published on
+`127.0.0.1:3200`, so it is only reachable from the host itself
+(`http://localhost:3200`). Put a reverse proxy in front of it, or set
+`SL_UTILS_BIND` (see below) to expose it on another interface.
 
 Useful commands:
 
@@ -95,46 +94,64 @@ $ docker compose down
 
 The runtime image is distroless: it has no shell and no package manager. The
 server is bundled into a single file, so the image does not include
-`node_modules`. The container runs as a non-root user on a read-only root
-filesystem, with all Linux capabilities dropped and resource limits applied.
+`node_modules`. Base images are pinned by digest. The container runs as a
+non-root user on a read-only root filesystem, with root-owned (read-only) app
+files, all Linux capabilities dropped, and memory, swap, CPU, process and file
+descriptor limits applied.
 
 ### Configuration
 
 | Variable          | Default         | Description                          |
 | ----------------- | --------------- | ------------------------------------ |
-| `SL_UTILS_BIND`   | `0.0.0.0`       | Host address to bind the published port to |
+| `SL_UTILS_BIND`   | `127.0.0.1`     | Host address to bind the published port to |
 | `SL_UTILS_PORT`   | `3200`          | Host port                            |
 | `SL_UTILS_SUBNET` | `172.28.0.0/24` | Docker network subnet                |
 
-For example, to listen only on localhost:
+For example, to make it reachable from other devices on the LAN:
 
 ```
-$ SL_UTILS_BIND=127.0.0.1 docker compose up -d
+$ SL_UTILS_BIND=0.0.0.0 docker compose up -d --build
 ```
+
+Docker-published ports bypass host firewalls such as ufw, so only do this on a
+trusted network.
 
 ### Egress lockdown
 
 Docker's default bridge network lets the container reach the host and other
-devices on your LAN. To restrict egress to public HTTP/HTTPS only:
+devices on your LAN. `scripts/docker-egress-lockdown.sh` adds iptables rules
+that restrict the container to DNS and public HTTP/HTTPS. It drops traffic to
+the Compose subnet, private ranges, link-local addresses, CGNAT ranges
+(Tailscale, NetBird), and new connections to host services.
+
+DNS is allowed only to the resolvers in `SL_UTILS_DNS` (default
+`100.100.100.100`, Tailscale MagicDNS). Set it to the upstream resolvers of your
+host, separated by spaces, since Docker's embedded DNS forwards queries from
+inside the container.
+
+To apply the rules automatically whenever Docker starts, install the script and
+the systemd unit:
 
 ```
-$ sudo ./scripts/docker-egress-lockdown.sh
+$ sudo install -m 0755 scripts/docker-egress-lockdown.sh /usr/local/sbin/sl-utils-egress-lockdown
+$ sudo install -m 0644 scripts/sl-utils-egress.service /etc/systemd/system/
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable --now sl-utils-egress.service
 ```
 
-Remove the rules with:
+To use a custom `SL_UTILS_DNS` or `SL_UTILS_SUBNET`, add them with
+`sudo systemctl edit sl-utils-egress` (`[Service]` / `Environment=...`). After
+editing the script, re-run the `install` command and
+`sudo systemctl restart sl-utils-egress`. Stopping the service removes the
+rules.
 
-```
-$ sudo ./scripts/docker-egress-lockdown.sh --remove
-```
+You can also run the script by hand (`sudo ./scripts/docker-egress-lockdown.sh`,
+and `--remove` to undo it), but the rules will not survive a reboot. IPv6 is not
+covered; the Compose network keeps IPv6 disabled.
 
-The script allows DNS and outbound TCP `80`/`443`, and drops traffic to the
-Compose subnet, private ranges, link-local addresses, CGNAT ranges, and new
-connections to host services. Use the same `SL_UTILS_SUBNET` value when removing
-the rules, and re-run the script after a Docker daemon restart or if the subnet
-changes. IPv6 is not covered; the Compose network keeps IPv6 disabled.
-
-Outbound HTTP/HTTPS and DNS are still allowed so `/api/meta` works. For stricter
-egress control, use an allowlisting proxy instead of direct internet access.
+`/api/meta` also rejects private and local addresses itself, including after
+redirects. For stricter egress control, use an allowlisting proxy instead of
+direct internet access.
 
 ### Public exposure
 
