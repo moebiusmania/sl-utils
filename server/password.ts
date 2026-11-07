@@ -1,62 +1,34 @@
-interface Options {
-  length?: number;
-  numbers?: boolean;
-  symbols?: boolean;
-  lowercase?: boolean;
-  uppercase?: boolean;
-}
+import {
+  CHARSETS,
+  type CharsetName,
+  generatePassword,
+  PasswordOptionsError,
+} from "../lib/password.ts";
 
-type Charset = "numbers" | "symbols" | "lowercase" | "uppercase";
+const NO_STORE = { "Cache-Control": "no-store" };
 
-export const generatePassword = (_options?: Options): string => {
-  const defaults: Options = {
-    length: 12,
-    numbers: true,
-    symbols: true,
-    lowercase: true,
-    uppercase: true,
-  };
-
-  const sets = {
-    numbers: "0123456789",
-    symbols: "!@#$%^&*()_+",
-    lowercase: "abcdefghijklmnopqrstuvwxyz",
-    uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  };
-
-  const options = { ...defaults, ..._options };
-
-  const charset = Object.keys(options)
-    .sort()
-    .filter((key) => options[key as Charset])
-    .map((key) => sets[key as Charset])
-    .join("");
-
-  const pswd = Array.from(
-    { length: options.length || (defaults.length as number) },
-    () => charset[Math.floor(Math.random() * charset.length)],
-  ).join("");
-
-  return pswd;
-};
-
+/**
+ * GET /api/password?length=12&numbers=false...
+ * Every charset is on unless explicitly set to "false". The /password page
+ * generates passwords in the browser and does not call this endpoint.
+ */
 export const handlePasswordRequest = (
   searchParams: URLSearchParams,
 ): Response => {
-  const length = parseInt(searchParams.get("length") || "12");
-  const numbers = searchParams.get("numbers") === "false" ? false : true;
-  const symbols = searchParams.get("symbols") === "false" ? false : true;
-  const lowercase = searchParams.get("lowercase") === "false" ? false : true;
-  const uppercase = searchParams.get("uppercase") === "false" ? false : true;
+  const rawLength = searchParams.get("length");
+  const length = rawLength === null ? 12 : Number(rawLength);
+  const charsets = (Object.keys(CHARSETS) as CharsetName[]).filter(
+    (c) => searchParams.get(c) !== "false",
+  );
 
-  const password = generatePassword({
-    length,
-    numbers,
-    symbols,
-    lowercase,
-    uppercase,
-  });
-  return new Response(password, {
-    headers: { "Content-Type": "text/plain" },
-  });
+  try {
+    return new Response(generatePassword({ length, charsets }), {
+      headers: { "Content-Type": "text/plain; charset=utf-8", ...NO_STORE },
+    });
+  } catch (e) {
+    if (e instanceof PasswordOptionsError) {
+      return new Response(e.message, { status: 400, headers: NO_STORE });
+    }
+    throw e;
+  }
 };

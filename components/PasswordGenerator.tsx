@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { generatePassword, MAX_LENGTH, MIN_LENGTH } from "../lib/password.ts";
 
 interface PasswordOptions {
   length: number;
@@ -20,29 +21,27 @@ export default function PasswordGenerator() {
   });
 
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleSubmit = async (e: Event) => {
+  const [error, setError] = useState<string>("");
+
+  // Generated locally with Web Crypto: the password never leaves the browser.
+  const handleSubmit = (e: Event) => {
     e.preventDefault();
-    setIsGenerating(true);
     setCopied(false);
-
+    setError("");
     try {
-      const params = new URLSearchParams();
-      params.append("length", options.length.toString());
-      if (options.numbers) params.append("numbers", "true");
-      if (options.symbols) params.append("symbols", "true");
-      if (options.lowercase) params.append("lowercase", "true");
-      if (options.uppercase) params.append("uppercase", "true");
-
-      const response = await fetch(`/api/password?${params.toString()}`);
-      const password = await response.text();
-      setGeneratedPassword(password);
-    } catch (error) {
-      console.error("Error generating password:", error);
-    } finally {
-      setIsGenerating(false);
+      setGeneratedPassword(
+        generatePassword({
+          length: options.length,
+          charsets: characterTypes
+            .map(({ key }) => key)
+            .filter((key) => options[key]),
+        }),
+      );
+    } catch (err) {
+      setGeneratedPassword("");
+      setError(err instanceof Error ? err.message : "Generation failed");
     }
   };
 
@@ -83,15 +82,15 @@ export default function PasswordGenerator() {
             type="range"
             id="length"
             class="form-range"
-            min="4"
-            max="128"
+            min={MIN_LENGTH}
+            max={MAX_LENGTH}
             value={options.length}
             onInput={(e) =>
               updateOption("length", parseInt(e.currentTarget.value))}
           />
           <div class="range-labels">
-            <span>4</span>
-            <span>128</span>
+            <span>{MIN_LENGTH}</span>
+            <span>{MAX_LENGTH}</span>
           </div>
         </div>
 
@@ -115,12 +114,13 @@ export default function PasswordGenerator() {
         <button
           type="submit"
           class="btn btn-primary btn-block"
-          disabled={isGenerating ||
-            (!options.lowercase && !options.uppercase && !options.numbers &&
-              !options.symbols)}
+          disabled={!options.lowercase && !options.uppercase &&
+            !options.numbers && !options.symbols}
         >
-          {isGenerating ? "Generating..." : "Generate password"}
+          Generate password
         </button>
+
+        {error && <p class="error-text">{error}</p>}
       </form>
 
       {generatedPassword && (

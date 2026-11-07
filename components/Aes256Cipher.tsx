@@ -2,7 +2,12 @@ import { useRef, useState } from "preact/hooks";
 
 type Tab = "encrypt" | "decrypt";
 
-const PBKDF2_ITERATIONS = 150_000;
+// Ciphertext format: "v2.salt.iv.ciphertext" (600k iterations, OWASP 2023
+// guidance for PBKDF2-HMAC-SHA256). Legacy "salt.iv.ciphertext" without a
+// version prefix used 150k iterations and is still accepted for decryption.
+const FORMAT_VERSION = "v2";
+const PBKDF2_ITERATIONS = 600_000;
+const LEGACY_PBKDF2_ITERATIONS = 150_000;
 const SALT_LENGTH_BYTES = 16;
 const IV_LENGTH_BYTES = 12; // Recommended size for AES-GCM
 
@@ -52,6 +57,7 @@ function base64UrlDecode(base64url: string): Uint8Array {
 async function deriveAesKeyFromPassphrase(
   passphrase: string,
   salt: Uint8Array,
+  iterations: number,
 ): Promise<CryptoKey> {
   const cryptoObj = globalThis.crypto;
   if (!cryptoObj?.subtle) {
@@ -70,7 +76,7 @@ async function deriveAesKeyFromPassphrase(
     {
       name: "PBKDF2",
       salt: uint8ToArrayBuffer(salt),
-      iterations: PBKDF2_ITERATIONS,
+      iterations,
       hash: "SHA-256",
     },
     passphraseKeyMaterial,
@@ -80,7 +86,7 @@ async function deriveAesKeyFromPassphrase(
   );
 }
 
-async function encryptAes256Gcm(
+export async function encryptAes256Gcm(
   plaintext: string,
   passphrase: string,
 ): Promise<string> {
@@ -94,7 +100,11 @@ async function encryptAes256Gcm(
   cryptoObj.getRandomValues(salt);
   cryptoObj.getRandomValues(iv);
 
-  const key = await deriveAesKeyFromPassphrase(passphrase, salt);
+  const key = await deriveAesKeyFromPassphrase(
+    passphrase,
+    salt,
+    PBKDF2_ITERATIONS,
+  );
   const plaintextBytes = new TextEncoder().encode(plaintext);
   const ciphertextBuffer = await cryptoObj.subtle.encrypt(
     { name: "AES-GCM", iv: uint8ToArrayBuffer(iv) },
@@ -103,13 +113,14 @@ async function encryptAes256Gcm(
   );
 
   return [
+    FORMAT_VERSION,
     base64UrlEncode(salt),
     base64UrlEncode(iv),
     base64UrlEncode(new Uint8Array(ciphertextBuffer)),
   ].join(".");
 }
 
-async function decryptAes256Gcm(
+export async function decryptAes256Gcm(
   ciphertextText: string,
   passphrase: string,
 ): Promise<string> {
@@ -119,9 +130,15 @@ async function decryptAes256Gcm(
   }
 
   const parts = ciphertextText.trim().split(".");
-  if (parts.length !== 3) {
+  let iterations: number;
+  if (parts.length === 4 && parts[0] === FORMAT_VERSION) {
+    iterations = PBKDF2_ITERATIONS;
+    parts.shift();
+  } else if (parts.length === 3) {
+    iterations = LEGACY_PBKDF2_ITERATIONS;
+  } else {
     throw new Error(
-      "Invalid ciphertext format. Expected: salt.iv.ciphertext (base64url).",
+      "Invalid ciphertext format. Expected: v2.salt.iv.ciphertext (base64url).",
     );
   }
 
@@ -129,7 +146,7 @@ async function decryptAes256Gcm(
   const iv = base64UrlDecode(parts[1]);
   const ciphertext = base64UrlDecode(parts[2]);
 
-  const key = await deriveAesKeyFromPassphrase(passphrase, salt);
+  const key = await deriveAesKeyFromPassphrase(passphrase, salt, iterations);
   const plaintextBuffer = await cryptoObj.subtle.decrypt(
     { name: "AES-GCM", iv: uint8ToArrayBuffer(iv) },
     key,
@@ -327,7 +344,7 @@ export default function Aes256Cipher() {
                 ref={decryptInputRef}
                 id="aes-decrypt-input"
                 class="input input-textarea"
-                placeholder="Paste salt.iv.ciphertext here..."
+                placeholder="Paste v2.salt.iv.ciphertext here..."
                 spellcheck={false}
                 defaultValue=""
               />

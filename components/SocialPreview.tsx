@@ -1,5 +1,5 @@
-import type { ComponentChildren } from "preact";
-import { useState } from "preact/hooks";
+import { type ComponentChildren, createContext } from "preact";
+import { useContext, useState } from "preact/hooks";
 import type { MetaPreview } from "../server/meta.ts";
 
 const isValidUrl = (string: string) => {
@@ -22,13 +22,22 @@ const hostOf = (url: string) => {
 const truncate = (text: string, max: number) =>
   text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
 
+// Images are hosted by the previewed site, so loading them reveals the
+// visitor's IP to it. They stay hidden until the user opts in.
+const ImagesAllowed = createContext(false);
+
 const PreviewImage = ({ src, class: className }: {
   src: string;
   class: string;
 }) => {
   const [failed, setFailed] = useState(false);
-  if (!src || failed) {
-    return <div class={`${className} social-image--empty`}>No image</div>;
+  const allowed = useContext(ImagesAllowed);
+  if (!src || failed || !allowed) {
+    return (
+      <div class={`${className} social-image--empty`}>
+        {src && !failed ? "Image not loaded" : "No image"}
+      </div>
+    );
   }
   return (
     <img
@@ -44,7 +53,8 @@ const PreviewImage = ({ src, class: className }: {
 
 const Favicon = ({ src }: { src: string }) => {
   const [failed, setFailed] = useState(false);
-  if (!src || failed) return <span class="social-favicon" />;
+  const allowed = useContext(ImagesAllowed);
+  if (!src || failed || !allowed) return <span class="social-favicon" />;
   return (
     <img
       class="social-favicon"
@@ -194,6 +204,7 @@ export default function SocialPreview() {
   const [meta, setMeta] = useState<MetaPreview | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [imagesAllowed, setImagesAllowed] = useState(false);
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -206,6 +217,7 @@ export default function SocialPreview() {
     setIsLoading(true);
     setError("");
     setMeta(null);
+    setImagesAllowed(false);
 
     try {
       const params = new URLSearchParams();
@@ -264,7 +276,23 @@ export default function SocialPreview() {
       </form>
 
       {meta && (
+        <ImagesAllowed.Provider value={imagesAllowed}>
         <div class="social-results">
+          {!imagesAllowed && (meta.image || meta.favicon) && (
+            <div class="social-images-notice">
+              <p class="social-muted">
+                Images are loaded from {hostOf(meta.url)}, which will see your
+                IP address.
+              </p>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onClick={() => setImagesAllowed(true)}
+              >
+                Load images
+              </button>
+            </div>
+          )}
           <Section name="Google">
             <GooglePreview meta={meta} />
           </Section>
@@ -287,6 +315,7 @@ export default function SocialPreview() {
             <TagsTable tags={meta.tags} />
           </Section>
         </div>
+        </ImagesAllowed.Provider>
       )}
     </>
   );

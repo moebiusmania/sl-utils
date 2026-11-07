@@ -18,7 +18,8 @@ Some simple and small APIs (_with some companion UIs_) to make my life easier.
 
 ## APIs
 
-- `GET /api/password` - Generate a random password
+- `GET /api/password` - Generate a random password (`length` 4-128, default 12;
+  `numbers`, `symbols`, `lowercase`, `uppercase` are on unless set to `false`)
 - `GET /api/qr-code?url=<url>` - Create a QR code for a given URL
 - `GET /api/mit-license` - Precompiled MIT License text
 - `GET /api/meta?url=<url>` - Extract the sharing metadata of a given URL

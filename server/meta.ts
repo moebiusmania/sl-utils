@@ -47,6 +47,10 @@ const parseAttributes = (tag: string): Record<string, string> => {
 };
 
 const MAX_REDIRECTS = 5;
+// Each fetch can hold up to MAX_BYTES for TIMEOUT_MS; capping parallel fetches
+// keeps a burst of requests from exhausting the container's memory.
+const MAX_CONCURRENT_FETCHES = 8;
+let activeFetches = 0;
 
 const isBlockedHostname = (host: string): boolean =>
   host === "localhost" ||
@@ -241,6 +245,14 @@ export const handleMetaRequest = async (
   if (!["http:", "https:"].includes(target.protocol)) {
     return error("Only http and https URLs are supported", 400);
   }
+  if (activeFetches >= MAX_CONCURRENT_FETCHES) {
+    return Response.json({ error: "Too many requests, try again shortly" }, {
+      status: 503,
+      headers: { "Retry-After": "5" },
+    });
+  }
+  activeFetches++;
+
   try {
     const signal = AbortSignal.timeout(TIMEOUT_MS);
     let url = target;
@@ -282,9 +294,20 @@ export const handleMetaRequest = async (
     return Response.json(extractMeta(html, res.url || url.href));
   } catch (e) {
     if (e instanceof BlockedTargetError) return error(e.message, 400);
-    const message = e instanceof DOMException && e.name === "TimeoutError"
-      ? "The page took too long to respond"
-      : "Could not fetch the page";
-    return error(message, 502);
+    const timeout = e instanceof DOMException && e.name === "TimeoutError";
+    // Log only the origin: paths and queries may carry user data. JSON.stringify
+    // keeps attacker-controlled text from forging log lines.
+    console.warn(JSON.stringify({
+      level: "warn",
+      event: "meta_fetch_failed",
+      origin: target.origin,
+      error: e instanceof Error ? `${e.name}: ${e.message}` : String(e),
+    }));
+    return error(
+      timeout ? "The page took too long to respond" : "Could not fetch the page",
+      502,
+    );
+  } finally {
+    activeFetches--;
   }
 };

@@ -1044,6 +1044,14 @@ legend.form-label {
   margin-top: var(--spacing-8);
 }
 
+.social-images-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
 .social-section-title {
   margin-bottom: var(--spacing-3);
   font-size: var(--text-sm);
