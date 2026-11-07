@@ -97,11 +97,14 @@ pages, each backed by an optional JSON/text API.
   with `BUN_VERSION`). App files stay root-owned; the process runs as 65532.
 - `compose.yaml`: read-only rootfs, all caps dropped, resource limits,
   published on `127.0.0.1:3200` by default (`SL_UTILS_BIND`, `SL_UTILS_PORT`,
-  `SL_UTILS_SUBNET`). It is intended to sit behind a reverse proxy on
-  localhost.
+  `SL_UTILS_SUBNET`). Host-specific values go in the git-ignored `.env`. If the
+  reverse proxy runs on another machine (e.g. over a VPN), it cannot reach
+  127.0.0.1: bind to the host's VPN IP instead (with
+  `net.ipv4.ip_nonlocal_bind=1` for boot ordering). Always check the app is
+  still reachable through the proxy after changing the bind.
 - `scripts/docker-egress-lockdown.sh` + `scripts/sl-utils-egress.service`:
-  host iptables rules limiting the container to DNS (default
-  `SL_UTILS_DNS=100.100.100.100`, Tailscale MagicDNS) and public TCP 80/443.
+  host iptables rules limiting the container to DNS (the host's resolvers from
+  `resolv.conf`, or `SL_UTILS_DNS`) and public TCP 80/443.
   Installed on the host as `/usr/local/sbin/sl-utils-egress-lockdown` and a
   systemd unit tied to `docker.service`; after editing the script, re-`install`
   it there and `systemctl restart sl-utils-egress`.

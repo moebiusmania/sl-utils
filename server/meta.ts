@@ -62,7 +62,7 @@ const isBlockedHostname = (host: string): boolean =>
 const BLOCKED_V4: Array<[string, number]> = [
   ["0.0.0.0", 8], // "this" network
   ["10.0.0.0", 8], // private
-  ["100.64.0.0", 10], // CGNAT (Tailscale, NetBird)
+  ["100.64.0.0", 10], // CGNAT, also used by mesh VPNs
   ["127.0.0.0", 8], // loopback
   ["169.254.0.0", 16], // link-local, cloud metadata
   ["172.16.0.0", 12], // private

@@ -6,8 +6,17 @@ INPUT_CHAIN="SL_UTILS_INPUT"
 SUBNET="${SL_UTILS_SUBNET:-172.28.0.0/24}"
 # Upstream resolvers that Docker's embedded DNS forwards to. Queries leave from
 # the container namespace, so they must be allowed before the private-range drops.
-# Default: Tailscale MagicDNS, the host resolver.
-DNS_SERVERS="${SL_UTILS_DNS:-100.100.100.100}"
+# Defaults to the host's IPv4 resolvers, read the same way Docker does: when the
+# host uses a loopback stub resolver, Docker uses the systemd-resolved upstreams.
+host_resolvers() {
+  local conf=/etc/resolv.conf
+  if grep -qE '^nameserver[[:space:]]+127\.' "$conf" &&
+    [[ -r /run/systemd/resolve/resolv.conf ]]; then
+    conf=/run/systemd/resolve/resolv.conf
+  fi
+  awk '$1 == "nameserver" && $2 ~ /^[0-9.]+$/ && $2 !~ /^127\./ { print $2 }' "$conf"
+}
+DNS_SERVERS="${SL_UTILS_DNS:-$(host_resolvers | tr '\n' ' ')}"
 IPTABLES=(iptables -w 5)
 
 if [[ ${EUID} -ne 0 ]]; then
@@ -37,6 +46,10 @@ fi
 if ! "${IPTABLES[@]}" -L DOCKER-USER >/dev/null 2>&1; then
   echo "error: DOCKER-USER chain not found; is Docker running?" >&2
   exit 1
+fi
+
+if [[ -z "${DNS_SERVERS// /}" ]]; then
+  echo "warning: no IPv4 DNS resolvers found; set SL_UTILS_DNS or DNS will be blocked" >&2
 fi
 
 # Create the chains if needed, then reset them so the script is idempotent.

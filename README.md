@@ -82,9 +82,9 @@ $ docker compose up -d --build
 ```
 
 The app listens on port `3000` inside the container and is published on
-`127.0.0.1:3200`, so it is only reachable from the host itself
-(`http://localhost:3200`). Put a reverse proxy in front of it, or set
-`SL_UTILS_BIND` (see below) to expose it on another interface.
+`127.0.0.1:3200`, so by default it is only reachable from the host itself
+(`http://localhost:3200`). Set `SL_UTILS_BIND` (see below) to publish it on the
+interface your reverse proxy connects to.
 
 Useful commands:
 
@@ -108,27 +108,49 @@ descriptor limits applied.
 | `SL_UTILS_PORT`   | `3200`          | Host port                            |
 | `SL_UTILS_SUBNET` | `172.28.0.0/24` | Docker network subnet                |
 
-For example, to make it reachable from other devices on the LAN:
+Put host-specific values in a `.env` file next to `compose.yaml` (it is
+git-ignored and read automatically by Docker Compose).
 
-```
-$ SL_UTILS_BIND=0.0.0.0 docker compose up -d --build
-```
+Pick the bind address based on where the reverse proxy runs:
 
-Docker-published ports bypass host firewalls such as ufw, so only do this on a
-trusted network.
+- **Same host:** keep the default `127.0.0.1`.
+- **Another machine over a VPN or overlay network:** use this host's IP on that
+  network, so the app is reachable only through the VPN:
+
+  ```
+  # .env
+  SL_UTILS_BIND=<this host's VPN IP>
+  ```
+
+  If the VPN interface comes up after Docker at boot, the container cannot bind
+  to its address and fails to start. Allow binding to addresses that are not up
+  yet:
+
+  ```
+  $ echo 'net.ipv4.ip_nonlocal_bind = 1' | sudo tee /etc/sysctl.d/99-nonlocal-bind.conf
+  $ sudo sysctl -p /etc/sysctl.d/99-nonlocal-bind.conf
+  ```
+
+- **Any device on the LAN:** `SL_UTILS_BIND=0.0.0.0`. Docker-published ports
+  bypass host firewalls such as ufw, so only do this on a trusted network.
+
+After changing the bind, check that the app is still reachable through the
+reverse proxy.
 
 ### Egress lockdown
 
 Docker's default bridge network lets the container reach the host and other
 devices on your LAN. `scripts/docker-egress-lockdown.sh` adds iptables rules
 that restrict the container to DNS and public HTTP/HTTPS. It drops traffic to
-the Compose subnet, private ranges, link-local addresses, CGNAT ranges
-(Tailscale, NetBird), and new connections to host services.
+the Compose subnet, private ranges, link-local addresses, CGNAT ranges (used by
+many mesh VPNs), and new connections to host services.
 
-DNS is allowed only to the resolvers in `SL_UTILS_DNS` (default
-`100.100.100.100`, Tailscale MagicDNS). Set it to the upstream resolvers of your
-host, separated by spaces, since Docker's embedded DNS forwards queries from
-inside the container.
+DNS is allowed only to the host's upstream resolvers, because Docker's embedded
+DNS forwards queries from inside the container. By default the script reads
+them from `/etc/resolv.conf` (or the systemd-resolved upstreams when the host
+uses a local stub resolver), even when they sit in a private or CGNAT range.
+Set `SL_UTILS_DNS` (space-separated IPs) to override them, and restart the
+service if the host's resolvers change.
 
 To apply the rules automatically whenever Docker starts, install the script and
 the systemd unit:
