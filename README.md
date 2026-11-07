@@ -55,10 +55,11 @@ $ bun install
 $ bun run dev
 ```
 
-To expose the dev server on the network:
+The dev server listens on all interfaces so you can test it from another device
+on the same network. To bind to localhost only:
 
 ```
-$ bun run dev:host
+$ bun run dev:local
 ```
 
 For production build and run:
